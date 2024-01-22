@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ekzakt.FileManager.AzureBlob", "Ekzakt.FileManager.AzureBlob\Ekzakt.FileManager.AzureBlob.csproj", "{4F0B0192-69D1-44AC-9DED-2DA3A6BB7DBE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ekzakt.FileManager.Core", "Ekzakt.FileManager.Core\Ekzakt.FileManager.Core.csproj", "{6B8A538F-859A-4D48-A3A3-0F83D301C7AB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4F0B0192-69D1-44AC-9DED-2DA3A6BB7DBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F0B0192-69D1-44AC-9DED-2DA3A6BB7DBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F0B0192-69D1-44AC-9DED-2DA3A6BB7DBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F0B0192-69D1-44AC-9DED-2DA3A6BB7DBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B8A538F-859A-4D48-A3A3-0F83D301C7AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B8A538F-859A-4D48-A3A3-0F83D301C7AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B8A538F-859A-4D48-A3A3-0F83D301C7AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B8A538F-859A-4D48-A3A3-0F83D301C7AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DF2A9548-D0E7-4970-8067-0D6B931E708D}
+	EndGlobalSection
+EndGlobal
