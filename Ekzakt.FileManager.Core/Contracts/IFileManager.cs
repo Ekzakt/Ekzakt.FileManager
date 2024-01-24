@@ -4,5 +4,5 @@ namespace Ekzakt.FileManager.Core.Contracts;
 
 public interface IFileManager
 {
-    Task<SaveFileResponse> SaveAsync(SaveFileRequest saveFileRequest, CancellationToken cancellation = default);
+    Task<SaveFileResponse> SaveAsync(SaveFileRequest saveFileRequest, CancellationToken cancellationToken = default);
 }

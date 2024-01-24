@@ -23,7 +23,7 @@ public class AzureBlobFileManager : IFileManager
     private SaveFileRequest _saveFileRequest;
 
     public AzureBlobFileManager(
-        ILogger<AzureBlobFileManager> logger, 
+        ILogger<AzureBlobFileManager> logger,
         IOptions<AzureFileManagerOptions> options)
     {
         _logger = logger;
@@ -44,10 +44,11 @@ public class AzureBlobFileManager : IFileManager
         {
             var blobResult = await blobClient.UploadAsync(saveFileRequest.InputStream, GetBlobUploadOptions(), cancellationToken);
 
-            var output = new SaveFileResponse {
+            var output = new SaveFileResponse
+            {
                 FileName = _saveFileRequest.FileName,
                 Message = $"File {_saveFileRequest.FileName} successfully saved.",
-                HttpStatusCode = HttpStatusCode.Created 
+                HttpStatusCode = HttpStatusCode.Created
             };
 
             return output;
@@ -96,7 +97,7 @@ public class AzureBlobFileManager : IFileManager
 
     private void EnsureBlobServiceClient()
     {
-        
+
         if (_blobServiceClient is null)
         {
             _logger.LogInformation("Connecting to Azure storage account.");
@@ -121,7 +122,7 @@ public class AzureBlobFileManager : IFileManager
 
 
     private BlobUploadOptions GetBlobUploadOptions()
-    { 
+    {
         var blobOptions = new BlobUploadOptions
         {
             ProgressHandler = new FileProgressHandler(_saveFileRequest),
@@ -137,4 +138,5 @@ public class AzureBlobFileManager : IFileManager
 
 
     #endregion Helpers
+
 }
