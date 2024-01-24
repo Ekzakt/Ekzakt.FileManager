@@ -4,6 +4,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage;
 using Azure;
 using Ekzakt.FileManager.AzureBlob.Configuration;
+using Ekzakt.FileManager.AzureBlob.Models;
 using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Models;
 using Microsoft.Extensions.Logging;
@@ -86,32 +87,18 @@ public class AzureBlobFileManager : IFileManager
         }
     }
 
+namespace Ekzakt.FileManager.AzureBlob.Services;
 
-
-
-    #region Helpers
-
-
-    private void EnsureBlobContainerClient(string containerName)
+{
     {
-        if (_blobContainerClient is not null && _blobContainerClient.Name.Equals(containerName, StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
 
-        EnsureBlobServiceClient();
 
-        _logger.LogInformation("Getting blob container {0}.", containerName);
-
-        _blobContainerClient = _blobServiceClient?.GetBlobContainerClient(containerName);
-
-        _logger.LogInformation("Successfully accessed blob container {0}.", containerName);
     }
 
 
     private void EnsureBlobServiceClient()
     {
-
+        
         if (_blobServiceClient is null)
         {
             _logger.LogInformation("Connecting to Azure storage account.");
@@ -125,8 +112,18 @@ public class AzureBlobFileManager : IFileManager
     }
 
 
-    private BlobUploadOptions GetBlobUploadOptions()
+    private void EnsureSaveFileRequest(SaveFileRequest saveFileRequest)
     {
+        var validator = new SaveFileRequestValidator();
+
+        validator.ValidateAndThrow(saveFileRequest);
+
+        _saveFileRequest = saveFileRequest;
+    }
+
+
+    private BlobUploadOptions GetBlobUploadOptions()
+    { 
         var blobOptions = new BlobUploadOptions
         {
             ProgressHandler = new FileProgressHandler(_saveFileRequest),
@@ -142,5 +139,5 @@ public class AzureBlobFileManager : IFileManager
 
 
     #endregion Helpers
-
+>>>>>>>>> Temporary merge branch 2
 }
