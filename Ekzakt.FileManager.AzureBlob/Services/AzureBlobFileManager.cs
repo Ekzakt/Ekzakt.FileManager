@@ -12,6 +12,8 @@ using Ekzakt.FileManager.AzureBlob.Services;
 using System.Net;
 using Ekzakt.FileManager.Core.Validators;
 using FluentValidation;
+using Ekzakt.FileManager.AzureBlob.Validators;
+using Ekzakt.FileManager.Core.Extensions;
 
 public class AzureBlobFileManager : IFileManager
 {
@@ -22,10 +24,14 @@ public class AzureBlobFileManager : IFileManager
     private BlobContainerClient? _blobContainerClient;
     private SaveFileRequest _saveFileRequest;
 
+
     public AzureBlobFileManager(
         ILogger<AzureBlobFileManager> logger,
-        IOptions<AzureFileManagerOptions> options)
+        IOptions<AzureFileManagerOptions> options,
+        IValidator<AzureFileManagerOptions> validator)
     {
+        validator.ValidateAndThrow(options.Value);
+
         _logger = logger;
         _options = options?.Value;
         _saveFileRequest = new();
@@ -35,7 +41,15 @@ public class AzureBlobFileManager : IFileManager
 
     public async Task<SaveFileResponse> SaveAsync(SaveFileRequest saveFileRequest, CancellationToken cancellationToken = default)
     {
-        EnsureSaveFileRequest(saveFileRequest);
+        SaveFileResponse? response;
+
+        if (!saveFileRequest.TryValidate(out response))
+        {
+            return response!;
+        }
+
+        _saveFileRequest = saveFileRequest;
+
         EnsureBlobContainerClient(saveFileRequest.ContainerName);
 
         BlobClient blobClient = _blobContainerClient!.GetBlobClient(saveFileRequest.FileName);
@@ -108,16 +122,6 @@ public class AzureBlobFileManager : IFileManager
 
             _logger.LogInformation("Connected successfully to Azure storage account.");
         }
-    }
-
-
-    private void EnsureSaveFileRequest(SaveFileRequest saveFileRequest)
-    {
-        var validator = new SaveFileRequestValidator();
-
-        validator.ValidateAndThrow(saveFileRequest);
-
-        _saveFileRequest = saveFileRequest;
     }
 
 

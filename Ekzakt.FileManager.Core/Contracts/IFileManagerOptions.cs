@@ -2,5 +2,4 @@
 
 public interface IFileManagerOptions
 {
-    string TestKey { get; init; }
 }

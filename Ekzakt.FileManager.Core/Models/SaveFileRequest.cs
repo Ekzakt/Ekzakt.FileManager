@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-
+﻿
 namespace Ekzakt.FileManager.Core.Models;
 
 public class SaveFileRequest

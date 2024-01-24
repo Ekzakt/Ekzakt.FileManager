@@ -23,10 +23,5 @@ public class FileProgressHandler : IProgress<long>
         };
 
         _saveFileRequest.ProgressHandler?.Report(args);
-
-        //if (_progressFlag != (int)args.PercentageDone) {
-        //    _progressFlag = (int)args.PercentageDone;
-        //    _saveFileRequest.ProgressHandler?.Report(args);
-        //}
     }
 }
