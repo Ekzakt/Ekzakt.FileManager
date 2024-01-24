@@ -17,8 +17,4 @@
 		<ProjectReference Include="..\Ekzakt.FileManager.Core\Ekzakt.FileManager.Core.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Extensions\" />
-	</ItemGroup>
-
 </Project>
