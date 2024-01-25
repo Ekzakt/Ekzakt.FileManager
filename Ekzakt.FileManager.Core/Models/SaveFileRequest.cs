@@ -21,7 +21,7 @@ public class SaveFileRequest
     public bool ThrowOnError { get => false; }
 
 
-    public long FileLangth { get => InputStream?.Length ?? 0; }
+    public long FileLength { get => InputStream?.Length ?? 0; }
 
 
     public SaveFileRequest SetInputStream(Stream? inputStream)

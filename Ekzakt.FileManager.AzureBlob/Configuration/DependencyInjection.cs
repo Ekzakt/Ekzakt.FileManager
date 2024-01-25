@@ -1,6 +1,6 @@
-﻿using Ekzakt.FileManager.AzureBlob.Services;
-using Ekzakt.FileManager.Core.Contracts;
+﻿using Ekzakt.FileManager.Core.Contracts;
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -17,15 +17,18 @@ public static class DependencyInjection
         return services;
     }
 
+
     public static IServiceCollection AddAzureBlobFileManager(this IServiceCollection services, string? configSectionPath = null)
     {
-        configSectionPath ??= AzureFileManagerOptions.OptionsName;
+        configSectionPath ??= FileManagerOptions.SectionName;
 
         services
-            .AddOptions<AzureFileManagerOptions>()
+            .AddOptions<FileManagerOptions>()
+            .ValidateOnStart()
             .BindConfiguration(configSectionPath);
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
         services.AddScoped<IFileManager, AzureBlobFileManager>();
 
         return services;

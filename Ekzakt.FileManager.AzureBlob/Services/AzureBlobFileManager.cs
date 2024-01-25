@@ -1,10 +1,8 @@
-﻿using Azure.Identity;
-using Azure.Storage.Blobs.Models;
+﻿using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs;
 using Azure.Storage;
 using Azure;
 using Ekzakt.FileManager.AzureBlob.Configuration;
-using Ekzakt.FileManager.AzureBlob.Models;
 using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Models;
 using Microsoft.Extensions.Logging;
@@ -13,27 +11,28 @@ using Ekzakt.FileManager.AzureBlob.Services;
 using System.Net;
 using Ekzakt.FileManager.Core.Validators;
 using FluentValidation;
-using Ekzakt.FileManager.AzureBlob.Validators;
-using Ekzakt.FileManager.Core.Extensions;
+using System.Text.RegularExpressions;
 
 public class AzureBlobFileManager : IFileManager
 {
     private readonly ILogger<AzureBlobFileManager> _logger;
-    private readonly AzureFileManagerOptions? _options;
+    private readonly FileManagerOptions? _options;
+    private readonly BlobServiceClient? _blobServiceClient;
 
-    private BlobServiceClient? _blobServiceClient;
     private BlobContainerClient? _blobContainerClient;
     private SaveFileRequest _saveFileRequest;
 
 
     public AzureBlobFileManager(
         ILogger<AzureBlobFileManager> logger,
-        IOptions<AzureFileManagerOptions> options,
-        IValidator<AzureFileManagerOptions> validator)
+        IOptions<FileManagerOptions> options,
+        BlobServiceClient blobServiceClient,
+        IValidator<FileManagerOptions> validator)
     {
         validator.ValidateAndThrow(options.Value);
 
         _logger = logger;
+        _blobServiceClient = blobServiceClient;
         _options = options?.Value;
         _saveFileRequest = new();
     }
@@ -42,22 +41,15 @@ public class AzureBlobFileManager : IFileManager
 
     public async Task<SaveFileResponse> SaveAsync(SaveFileRequest saveFileRequest, CancellationToken cancellationToken = default)
     {
-        SaveFileResponse? response;
-
-        if (!saveFileRequest.TryValidate(out response))
-        {
-            return response!;
-        }
-
-        _saveFileRequest = saveFileRequest;
-
-        EnsureBlobContainerClient(saveFileRequest.ContainerName);
-
-        BlobClient blobClient = _blobContainerClient!.GetBlobClient(saveFileRequest.FileName);
-
         try
         {
+            EnsureBlobContainerClient(saveFileRequest.ContainerName);
+            EnsureSaveFileRequest(saveFileRequest);
+
+            var blobClient = _blobContainerClient!.GetBlobClient(saveFileRequest.FileName);
             var blobResult = await blobClient.UploadAsync(saveFileRequest.InputStream, GetBlobUploadOptions(), cancellationToken);
+            
+            _logger.LogInformation("File {0} successfully created in blobcontainer {1}. RawResponse: {2}", saveFileRequest.FileName, saveFileRequest.ContainerName, blobResult.GetRawResponse());
 
             var output = new SaveFileResponse
             {
@@ -72,43 +64,61 @@ public class AzureBlobFileManager : IFileManager
         {
             _logger.LogError("Container not found: {0}", saveFileRequest.ContainerName);
 
-            if (saveFileRequest.ThrowOnError) throw;
+            return new SaveFileResponse
+            {
+                FileName = _saveFileRequest.FileName,
+                HttpStatusCode = HttpStatusCode.InternalServerError
+            };
+        }
+        catch (ValidationException ex)
+        {
+            _logger.LogError("One or more validation errors occured: {0}", ex);
 
-            return new SaveFileResponse { HttpStatusCode = HttpStatusCode.InternalServerError };
+            var message = ex.Errors.FirstOrDefault()?.ToString();
+            
+            if (message != null)
+            {
+                message = Regex.Unescape(message);
+            }
 
+            return new SaveFileResponse
+            {
+                FileName = _saveFileRequest.FileName,
+                Message = $"One or more validation errors occured: {message}",
+                HttpStatusCode = HttpStatusCode.BadRequest
+            };
         }
         catch (Exception ex)
         {
             _logger.LogError("Error while saving file: {0}", ex);
 
-            if (saveFileRequest.ThrowOnError) throw;
-
-            return new SaveFileResponse { HttpStatusCode = HttpStatusCode.InternalServerError };
+            return new SaveFileResponse
+            {
+                FileName = _saveFileRequest.FileName,
+                Message = $"Error while saving file: {ex.Message}",
+                HttpStatusCode = HttpStatusCode.InternalServerError
+            };
         }
     }
 
-namespace Ekzakt.FileManager.AzureBlob.Services;
 
-{
+
+
+    #region Helpers
+
+
+    private void EnsureBlobContainerClient(string containerName)
     {
-
-
-    }
-
-
-    private void EnsureBlobServiceClient()
-    {
-        
-        if (_blobServiceClient is null)
+        if (_blobContainerClient is not null && _blobContainerClient.Name.Equals(containerName, StringComparison.OrdinalIgnoreCase))
         {
-            _logger.LogInformation("Connecting to Azure storage account.");
-
-            _blobServiceClient = new BlobServiceClient(
-               serviceUri: new Uri($"https://{_options?.Azure.StorageAccount.Name}.blob.core.windows.net"),
-               credential: new DefaultAzureCredential());
-
-            _logger.LogInformation("Connected successfully to Azure storage account.");
+            return;
         }
+
+        _logger.LogInformation("Getting blob container {0}.", containerName);
+
+        _blobContainerClient = _blobServiceClient?.GetBlobContainerClient(containerName);
+
+        _logger.LogInformation("Successfully accessed blob container {0}.", containerName);
     }
 
 
@@ -123,7 +133,7 @@ namespace Ekzakt.FileManager.AzureBlob.Services;
 
 
     private BlobUploadOptions GetBlobUploadOptions()
-    { 
+    {
         var blobOptions = new BlobUploadOptions
         {
             ProgressHandler = new FileProgressHandler(_saveFileRequest),
@@ -139,5 +149,5 @@ namespace Ekzakt.FileManager.AzureBlob.Services;
 
 
     #endregion Helpers
->>>>>>>>> Temporary merge branch 2
+
 }
