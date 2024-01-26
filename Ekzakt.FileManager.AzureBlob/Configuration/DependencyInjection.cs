@@ -27,7 +27,7 @@ public static class DependencyInjection
             .ValidateOnStart()
             .BindConfiguration(configSectionPath);
 
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
         services.AddScoped<IFileManager, AzureBlobFileManager>();
 

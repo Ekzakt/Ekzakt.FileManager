@@ -2,7 +2,7 @@
 
 namespace Ekzakt.FileManager.Core.Models;
 
-internal class DownloadFileResponse : IFileResponse
+internal class DownloadFileResponse
 {
     public bool IsSuccess => false;
 }

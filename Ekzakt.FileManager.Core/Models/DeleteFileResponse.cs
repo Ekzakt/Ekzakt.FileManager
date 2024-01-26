@@ -2,7 +2,7 @@
 
 namespace Ekzakt.FileManager.Core.Models;
 
-public class DeleteFileResponse : IFileResponse
+public class DeleteFileResponse
 {
     public bool IsSuccess => true;
 }

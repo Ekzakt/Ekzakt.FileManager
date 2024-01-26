@@ -4,9 +4,9 @@ using FluentValidation;
 
 namespace Ekzakt.FileManager.Core.Validators;
 
-public class SaveFileRequestValidator : AbstractValidator<SaveFileRequest>
+public class FileRequestValidator : AbstractValidator<SaveFileRequest>
 {
-    public SaveFileRequestValidator()
+    public FileRequestValidator()
     {
         RuleFor(x => x.ContainerName)
             .NotNull()

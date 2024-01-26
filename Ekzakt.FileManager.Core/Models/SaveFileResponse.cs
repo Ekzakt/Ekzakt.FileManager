@@ -3,13 +3,31 @@ using System.Net;
 
 namespace Ekzakt.FileManager.Core.Models;
 
-public class SaveFileResponse : IFileResponse
+public class SaveFileResponse : IFileManagerResponse
 {
-    public string FileName { get; set; } = string.Empty;
+
+    public SaveFileResponse() 
+    {
+    }
+
+
+    public SaveFileResponse(string message)
+    {
+        Message = message;
+    }
+
+
+    public SaveFileResponse(string message, HttpStatusCode statusCode) : this(message)
+    {
+        StatusCode = statusCode;
+    }
+
+
+    public string FileName { get; set; } = "TestValue";
 
     public string Message { get; set; } = string.Empty;
 
-    public HttpStatusCode HttpStatusCode { get; set; } = HttpStatusCode.InternalServerError;
+    public HttpStatusCode StatusCode { get; set; } = HttpStatusCode.OK;
 
-    public bool IsSuccess => HttpStatusCode == HttpStatusCode.Created;
+    public bool IsSuccess => StatusCode == HttpStatusCode.Created;
 }
