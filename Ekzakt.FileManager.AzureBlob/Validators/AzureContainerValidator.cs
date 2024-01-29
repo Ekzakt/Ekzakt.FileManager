@@ -10,6 +10,6 @@ public class AzureContainerValidator : AbstractValidator<FileManagerOptions>
     {
         RuleForEach(x => x.ContainerNames)
             .NotEmpty()
-            .Matches(Regexes.Azure.StorageAccount.CONTAINERNAME);
+            .Matches(Regexes.Azure.StorageAccount.CONTAINER_NAME);
     }
 }

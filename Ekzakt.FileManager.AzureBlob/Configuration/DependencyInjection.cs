@@ -1,14 +1,13 @@
-﻿using Ekzakt.FileManager.Core.Contracts;
+﻿using Ekzakt.FileManager.AzureBlob.Services;
+using Ekzakt.FileManager.Core.Contracts;
 using FluentValidation;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace Ekzakt.FileManager.AzureBlob.Configuration;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddAzureBlobFileManager(this IServiceCollection services, Action<IFileManagerOptions> options)
+    public static IServiceCollection AddAzureBlobFileManager(this IServiceCollection services, Action<FileManagerOptions> options)
     {
         services.Configure(options);
 

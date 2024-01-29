@@ -1,134 +1,174 @@
-﻿using Azure.Storage.Blobs.Models;
-using Azure.Storage.Blobs;
-using Azure.Storage;
+﻿using Azure.Storage.Blobs;
 using Azure;
-using Ekzakt.FileManager.AzureBlob.Configuration;
-using Ekzakt.FileManager.Core.Contracts;
-using Ekzakt.FileManager.Core.Models;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Ekzakt.FileManager.AzureBlob.Services;
-using System.Net;
-using FluentValidation;
-using System.Text.RegularExpressions;
 using Ekzakt.FileManager.Core.Validators;
-using Azure.Core;
+using Microsoft.Extensions.Logging;
+using System.Net;
+using Ekzakt.FileManager.Core.Contracts;
+using Ekzakt.FileManager.Core.Extensions;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage;
+using Ekzakt.FileManager.Core.Models.Responses;
+using Ekzakt.FileManager.Core.Models.Requests;
+using Ekzakt.FileManager.AzureBlob.Exceptions;
 
-public class AzureBlobFileManager : AbstractAzureBlobFileManager, IFileManager
+namespace Ekzakt.FileManager.AzureBlob.Services
 {
-    private readonly FileManagerOptions? _options;
-
-    private SaveFileRequest _saveFileRequest;
-    private IValidator<SaveFileRequest> _requestValidator;
-
-    public AzureBlobFileManager(
-        ILogger<AzureBlobFileManager> logger,
-        IOptions<FileManagerOptions> options,
-        IValidator<SaveFileRequest> requestValidator,
-        BlobServiceClient blobServiceClient)
-        : base(logger, blobServiceClient)
+    public class AzureBlobFileManager : AbstractFileManager, IFileManager
     {
-        _options = options?.Value;
-        _saveFileRequest = new();
-        _requestValidator = requestValidator;
-    }
+        private readonly ILogger<AzureBlobFileManager> _logger;
+        private readonly BlobServiceClient _blobServiceClient;
+        private readonly SaveFileRequestValidator _saveFileValidator;
+        private readonly DownloadFileRequestValidator _downloadFileValidator;
+        private readonly ListFilesRequestValidator _listFilesValidator;
+        private readonly DeleteFileRequestValidator _deleteFileValidator;
+
+        private SaveFileRequest? _request;
+        private BlobContainerClient? _blobContainerClient;
 
 
-
-    public async Task<IFileManagerResponse> SaveAsync(SaveFileRequest saveFileRequest, CancellationToken cancellationToken = default)
-    {
-        var blobRequest = EnsureBlobContainerClient(saveFileRequest.ContainerName);
-        if (!blobRequest.IsSuccess)
+        public AzureBlobFileManager(
+            ILogger<AzureBlobFileManager> logger,
+            BlobServiceClient blobServiceClient,
+            SaveFileRequestValidator saveFileValidator,
+            DownloadFileRequestValidator downloadFileValidator,
+            ListFilesRequestValidator listFilesValidator,
+            DeleteFileRequestValidator deleteFileValidator)
+            : base(logger)
         {
-            return blobRequest;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _blobServiceClient = blobServiceClient ?? throw new ArgumentNullException(nameof(saveFileValidator));
+            _saveFileValidator = saveFileValidator ?? throw new ArgumentNullException(nameof(saveFileValidator));
+            _downloadFileValidator = downloadFileValidator ?? throw new ArgumentNullException(nameof(downloadFileValidator));
+            _listFilesValidator = listFilesValidator ?? throw new ArgumentNullException(nameof(listFilesValidator));
+            _deleteFileValidator = deleteFileValidator ?? throw new ArgumentNullException(nameof(deleteFileValidator));
         }
 
-        var fileRequest = EnsureRequest(saveFileRequest, _requestValidator);
-        if (!fileRequest.IsSuccess)
+
+        public async Task<FileResponse<string?>>SaveFileAsync<T>(T saveFileRequest, CancellationToken cancellationToken = default)
+            where T : AbstractFileRequest
         {
-            return fileRequest;
-        }
 
+            _request = saveFileRequest as SaveFileRequest;
 
-        try
-        {
-            var blobClient = BlobClient!
-                .GetBlobClient(saveFileRequest.FileName);
-
-            var blobResult = await blobClient.UploadAsync(
-                saveFileRequest.InputStream, 
-                GetBlobUploadOptions(), 
-                cancellationToken);
-            
-            Logger.LogTrace("File {0} successfully created in blobcontainer {1}. RawResponse: {2}", saveFileRequest.FileName, saveFileRequest.ContainerName, blobResult.GetRawResponse());
-
-            var output = new SaveFileResponse(
-                message: $"File {_saveFileRequest.FileName} successfully saved.",
-                statusCode: HttpStatusCode.Created);
-
-            return output;
-        }
-        catch (RequestFailedException ex) when (ex.Status == 404)
-        {
-            Logger.LogError("Container not found: {0}", saveFileRequest.ContainerName);
-
-            return new SaveFileResponse{
-                FileName = _saveFileRequest.FileName,
-                StatusCode = HttpStatusCode.InternalServerError
-            };
-        }
-        catch (ValidationException ex)
-        {
-            Logger.LogError("One or more validation errors occured: {0}", ex);
-
-            var message = ex.Errors.FirstOrDefault()?.ToString();
-            
-            if (message != null)
+            if (!ValidateRequest(_request!, _saveFileValidator, out FileResponse<string?> validationResponse))
             {
-                message = Regex.Unescape(message);
+                return validationResponse!;
             }
 
-            return new SaveFileResponse
+            try
             {
-                FileName = _saveFileRequest.FileName,
-                Message = $"One or more validation errors occured: {message}",
-                StatusCode = HttpStatusCode.BadRequest
-            };
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError("Error while saving file: {0}", ex);
+                _logger.LogRequestStarted(_request);
 
-            return new SaveFileResponse
-            {
-                FileName = _saveFileRequest.FileName,
-                Message = $"Error while saving file: {ex.Message}",
-                StatusCode = HttpStatusCode.InternalServerError
-            };
-        }
-    }
+                _request!.FileStream!.Position = 0;
 
+                if (!EnsureBlobContainer<string?>(_request.ContainerName, _request!.CorrelationId, out FileResponse<string?> response))
+                {
+                    return response;
+                }
 
+                var blobClient = _blobContainerClient!.GetBlobClient(_request!.FileName);
 
+                if (await blobClient.ExistsAsync(cancellationToken))
+                {
+                    throw new BlobClientExistsException(_request!.FileName, _request!.ContainerName);
+                }
 
-    #region Helpers
+                await blobClient.UploadAsync(_request!.FileStream, GetBlobUploadOptions(), cancellationToken);
 
-    private BlobUploadOptions GetBlobUploadOptions()
-    {
-        var blobOptions = new BlobUploadOptions
-        {
-            ProgressHandler = new FileProgressHandler(_saveFileRequest),
-            TransferOptions = new StorageTransferOptions
-            {
-                MaximumConcurrency = Environment.ProcessorCount * 2,
-                MaximumTransferSize = 50 * 1024 * 1024
+                _logger.LogInformation("File {FileName} successfully created. CorrelationId: {CorrelationId}", _request!.FileName, _request!.CorrelationId);
+
+                return new FileResponse<string?>
+                {
+                    Status = HttpStatusCode.Created,
+                    Message = "File created successfully.",
+                    CorrelationId = _request.CorrelationId
+                };
             }
-        };
+            catch (BlobClientExistsException ex)
+            {
+                _logger.LogError("File {FileName} already exists. CorrelationId: {CorrelationId}. Exception: {Exception}", _request!.FileName, _request!.CorrelationId, ex);
 
-        return blobOptions;
+                return new FileResponse<string?>
+                {
+                    Status = HttpStatusCode.InternalServerError,
+                    Message = "File already exists. It has not been overwritten.",
+                    CorrelationId = _request!.CorrelationId
+                };
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError("An error occured while saving file {FileName}. CorrelationId: {CorrelationId}. Exception {Exception}", _request!.FileName, _request!.CorrelationId, ex);
+
+                return new FileResponse<string?>
+                {
+                    Status = HttpStatusCode.InternalServerError,
+                    Message = "File could not be saved.",
+                    CorrelationId = _request!.CorrelationId
+                };
+            }
+            finally
+            {
+                _logger.LogInformation("Closing request-filestream. CorrelationId: {CorrellationId}.", _request!.CorrelationId);
+
+                _request!.FileStream?.Close();
+            }
+        }
+
+
+        #region Helpers
+
+
+        private BlobUploadOptions GetBlobUploadOptions()
+        {
+            var blobOptions = new BlobUploadOptions
+            {
+                ProgressHandler = new FileProgressHandler(_request!),
+                TransferOptions = new StorageTransferOptions
+                {
+                    MaximumConcurrency = Environment.ProcessorCount * 2,
+                    MaximumTransferSize = 50 * 1024 * 1024
+                }
+            };
+
+            return blobOptions;
+        }
+
+
+        private bool EnsureBlobContainer<TResponse>(string containerName, Guid correlationId, out FileResponse<TResponse?> response)
+            where TResponse : class?
+        {
+            if (_blobContainerClient is not null)
+            {
+                if (_blobContainerClient.Name.Equals(containerName))
+                {
+                    response = new();
+                    return true;
+                }
+            }
+
+            try
+            {
+                _blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+                response = new();
+                return true;
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                _logger.LogError("Blobcontainer {BlobContainerName} does not exist. CorrelationId {CorrelationId}. Exception: {Exception}", containerName, correlationId, ex);
+
+                response = new FileResponse<TResponse?>
+                {
+                    Status = HttpStatusCode.NotFound,
+                    Message = "Error saving file. Container not found.",
+                    CorrelationId = _request!.CorrelationId
+                };
+
+                return false;
+            }
+        }
+
+
+        #endregion Helpers
     }
-
-
-    #endregion Helpers
-
 }
