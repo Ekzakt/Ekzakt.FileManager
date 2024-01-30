@@ -38,7 +38,7 @@ jobs:
       run: sed -i "s/\(<Version>\([0-9]\+\.\)\{2\}\)\([0-9]\+\)/\1${{github.run_number}}/" ./Ekzakt.FileManager.Core/Ekzakt.FileManager.Core.csproj
 
     - name: Update Build Number for Ekzakt.FileManager.Smtp
-      run: sed -i "s/\(<Version>\([0-9]\+\.\)\{2\}\)\([0-9]\+\)/\1${{github.run_number}}/" ./Ekzakt.FileManager.Smtp/Ekzakt.FileManager.Smtp.csproj
+      run: sed -i "s/\(<Version>\([0-9]\+\.\)\{2\}\)\([0-9]\+\)/\1${{github.run_number}}/" ./Ekzakt.FileManager.AzureBlob/Ekzakt.FileManager.AzureBlob.csproj
       
     # Create the NuGet packages in the folder from the environment variable NuGetDirectory
     - name: Create NuGet packages for all projects
