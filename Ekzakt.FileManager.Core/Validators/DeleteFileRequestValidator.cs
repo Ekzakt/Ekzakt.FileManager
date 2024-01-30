@@ -9,6 +9,6 @@ public class DeleteFileRequestValidator : AbstractValidator<DeleteFileRequest>
     {
         // TODO: Make this simpler!
         RuleFor(request => request.ContainerName).NotEmpty().WithMessage("Container name cannot be empty.");
-        RuleFor(request => request.BlobName).NotEmpty().WithMessage("Blob name cannot be empty.");
+        RuleFor(request => request.FileName).NotEmpty().WithMessage("Blob name cannot be empty.");
     }
 }

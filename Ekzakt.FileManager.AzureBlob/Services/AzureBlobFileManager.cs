@@ -11,7 +11,7 @@ using Ekzakt.FileManager.Core.Models.Responses;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.AzureBlob.Exceptions;
 using Ekzakt.FileManager.Core.Models;
-using System.Linq;
+using Azure.Storage.Sas;
 
 namespace Ekzakt.FileManager.AzureBlob.Services
 {
@@ -28,6 +28,8 @@ namespace Ekzakt.FileManager.AzureBlob.Services
 
         private SaveFileRequest? _saveFileRequest;
         private ListFilesRequest? _listFilesRequest;
+        private DeleteFileRequest? _deleteFileRequest;
+        private DownloadFileRequest? _downloadFileRequest;
 
 
         public AzureBlobFileManager(
@@ -82,7 +84,7 @@ namespace Ekzakt.FileManager.AzureBlob.Services
 
                 await blobClient.UploadAsync(_saveFileRequest!.FileStream, GetBlobUploadOptions(), cancellationToken);
 
-                _logger.LogInformation("File {FileName} created successfully. CorrelationId: {CorrelationId}", _saveFileRequest!.FileName, _saveFileRequest!.CorrelationId);
+                _logger.LogInformation("The file {FileName} created successfully. CorrelationId: {CorrelationId}", _saveFileRequest!.FileName, _saveFileRequest!.CorrelationId);
 
                 return new FileResponse<string?>
                 {
@@ -93,18 +95,18 @@ namespace Ekzakt.FileManager.AzureBlob.Services
             }
             catch (BlobClientExistsException ex)
             {
-                _logger.LogError("File {FileName} already exists. CorrelationId: {CorrelationId}. Exception: {Exception}", _saveFileRequest!.FileName, _saveFileRequest!.CorrelationId, ex);
+                _logger.LogError("The file {FileName} already exists. It has not been overwritten. CorrelationId: {CorrelationId}. Exception: {Exception}", _saveFileRequest!.FileName, _saveFileRequest!.CorrelationId, ex);
 
                 return new FileResponse<string?>
                 {
-                    Status = HttpStatusCode.InternalServerError,
-                    Message = "File already exists. It has not been overwritten.",
+                    Status = HttpStatusCode.BadRequest,
+                    Message = "The file already exists. It has not been overwritten.",
                     CorrelationId = _saveFileRequest!.CorrelationId
                 };
             }
             catch (Exception ex) 
             {
-                _logger.LogError("An error occured while saving file {FileName}. CorrelationId: {CorrelationId}. Exception {Exception}", _saveFileRequest!.FileName, _saveFileRequest!.CorrelationId, ex);
+                _logger.LogError("An error occured while saving the file {FileName}. CorrelationId: {CorrelationId}. Exception {Exception}", _saveFileRequest!.FileName, _saveFileRequest!.CorrelationId, ex);
 
                 return new FileResponse<string?>
                 {
@@ -181,9 +183,145 @@ namespace Ekzakt.FileManager.AzureBlob.Services
         }
 
 
+        public async Task<FileResponse<string?>> DeleteFileAsync<T>(T deleteFileRequest, CancellationToken cancellationToken = default) where T : AbstractFileRequest
+        {
+            _deleteFileRequest = deleteFileRequest as DeleteFileRequest;
+
+
+            if (!ValidateRequest(_deleteFileRequest!, _deleteFileValidator, out FileResponse<string?> validationResponse))
+            {
+                return validationResponse;
+            }
+
+
+            if (!EnsureBlobContainer<string?>(_deleteFileRequest!.ContainerName, _deleteFileRequest!.CorrelationId, out FileResponse<string?> blobContainerResponse))
+            {
+                return blobContainerResponse;
+            }
+
+
+            try
+            {
+                _logger.LogRequestStarted(_deleteFileRequest);
+
+                var deleteResult = await _blobContainerClient!.DeleteBlobIfExistsAsync(_deleteFileRequest!.FileName, cancellationToken: cancellationToken);
+
+                if (deleteResult == true)
+                {
+                    _logger.LogInformation("The file {FileName} was deleted successfully. CorrelationId: {CorrelationId}", _deleteFileRequest!.FileName, _deleteFileRequest!.CorrelationId);
+
+                    return new FileResponse<string?>
+                    {
+                        Status = HttpStatusCode.OK,
+                        Message = "The file was deleted succuessfully.",
+                        CorrelationId = _deleteFileRequest.CorrelationId
+                    };
+                }
+
+                _logger.LogInformation("The specified file does not exist. CorrelationId: {CorrelationId}", _deleteFileRequest!.CorrelationId);
+
+                return new FileResponse<string?>
+                {
+                    Status = HttpStatusCode.NotFound,
+                    Message = "The specified file does not exist.",
+                    CorrelationId = _deleteFileRequest.CorrelationId
+                };
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occured while deleteing the file {FileName}. CorrelationId: {CorrelationId}. Exception {Exception}", _deleteFileRequest!.FileName, _listFilesRequest!.CorrelationId, ex);
+
+                return new FileResponse<string?>
+                {
+                    Status = HttpStatusCode.InternalServerError,
+                    Message = "The file could not be deleted.",
+                    CorrelationId = _listFilesRequest!.CorrelationId
+                };
+            }
+        }
+
+
+        public FileResponse<DownloadFileResponse?> DownloadFile<T>(T downloadFileRequest, CancellationToken cancellationToken = default) where T : AbstractFileRequest
+        {
+            _downloadFileRequest = downloadFileRequest as DownloadFileRequest;
+
+            if (!ValidateRequest(_downloadFileRequest!, _downloadFileValidator, out FileResponse<DownloadFileResponse?> validationResponse))
+            {
+                return validationResponse!;
+            }
+
+
+            if (!EnsureBlobContainer<DownloadFileResponse?>(_downloadFileRequest!.ContainerName, _downloadFileRequest!.CorrelationId, out FileResponse<DownloadFileResponse?> blobContainerResponse))
+            {
+                return blobContainerResponse;
+            }
+
+            try
+            {
+                _logger.LogRequestStarted(_downloadFileRequest);
+
+                var userDelegationKey = _blobServiceClient
+                    .GetUserDelegationKey(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddHours(4), cancellationToken);
+
+                var blobClient = _blobContainerClient!
+                    .GetBlobClient(_downloadFileRequest!.FileName);
+
+                var sasBuilder = new BlobSasBuilder
+                {
+                    BlobContainerName = _downloadFileRequest!.ContainerName,
+                    BlobName = _downloadFileRequest!.FileName,
+                    Resource = "b", // "b" for blob, "c" for container
+                    StartsOn = DateTimeOffset.UtcNow,
+                    ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(1),
+                };
+
+                sasBuilder.SetPermissions(BlobSasPermissions.Read);
+
+                var blobUriBuilder = new BlobUriBuilder(blobClient.Uri)
+                {
+                    Sas = sasBuilder.ToSasQueryParameters(userDelegationKey, _blobServiceClient.AccountName)
+                };
+
+
+                var downloadResponse = new DownloadFileResponse()
+                { 
+                    DownloadUri = blobUriBuilder.ToUri(),
+                    ExpiresOn = sasBuilder.ExpiresOn
+
+                };
+                
+
+                var sasToken = blobUriBuilder.ToUri().ToString();
+
+                _logger.LogInformation("The download token is generated successfyly. CorrelationId {CorrelationId}.", _downloadFileRequest!.CorrelationId);
+
+                return new FileResponse<DownloadFileResponse?>
+                {
+                    Status = HttpStatusCode.Created,
+                    Message = "The download uri was created successfully.",
+                    Data = downloadResponse,
+                    CorrelationId = _downloadFileRequest.CorrelationId
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occured while generating the doownload token. CorrelationId: {CorrelationId}. Exception {Exception}", _downloadFileRequest!.CorrelationId, ex);
+
+                return new FileResponse<DownloadFileResponse?>
+                {
+                    Status = HttpStatusCode.InternalServerError,
+                    Message = "File download uri could not be generated.",
+                    CorrelationId = _downloadFileRequest!.CorrelationId
+                };
+            }
+        }
+
+
 
 
         #region Helpers
+
 
         private BlobUploadOptions GetBlobUploadOptions()
         {
