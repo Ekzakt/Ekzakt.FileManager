@@ -1,2 +1,2 @@
 ﻿# Ekzakt.EmailSender.Smtp
-This package is an actual implementation of [Ekzakt.EmailSender.Core](https://github.com/Ekzakt/Ekzakt.EmailSender/tree/master/Ekzakt.EmailSender.Core).
+This package is an actual implementation of [Ekzakt.FileManager.Core](https://github.com/Ekzakt/Ekzakt.FileManager/tree/master/Ekzakt.FileManager.Core).
