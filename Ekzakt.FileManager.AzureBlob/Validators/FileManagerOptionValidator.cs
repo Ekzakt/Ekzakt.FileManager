@@ -4,12 +4,12 @@ using FluentValidation;
 
 namespace Ekzakt.FileManager.AzureBlob.Validators;
 
-public class AzureContainerValidator : AbstractValidator<FileManagerOptions>
+public class FileManagerOptionValidator : AbstractValidator<FileManagerOptions>
 {
-    public AzureContainerValidator()
+    public FileManagerOptionValidator()
     {
         RuleForEach(x => x.ContainerNames)
             .NotEmpty()
-            .Matches(Regexes.Azure.StorageAccount.CONTAINER_NAME);
+            .Matches(Regexes.Azure.StorageAccount.BLOB_CONTAINER_NAME);
     }
 }

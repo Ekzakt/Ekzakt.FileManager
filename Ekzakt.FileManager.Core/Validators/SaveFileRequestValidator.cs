@@ -2,6 +2,7 @@
 using FluentValidation;
 using Regexes = Ekzakt.Utilities.Validation.Regex;
 
+
 namespace Ekzakt.FileManager.Core.Validators;
 
 public class SaveFileRequestValidator : AbstractValidator<SaveFileRequest>
@@ -11,7 +12,7 @@ public class SaveFileRequestValidator : AbstractValidator<SaveFileRequest>
         RuleFor(x => x.ContainerName)
             .NotNull()
             .NotEmpty()
-            .Matches(Regexes.Azure.StorageAccount.CONTAINER_NAME);
+            .Matches(Regexes.Azure.StorageAccount.BLOB_CONTAINER_NAME);
 
         RuleFor(x => x.FileName)
             .NotNull()

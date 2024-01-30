@@ -1,14 +1,17 @@
 ﻿using Ekzakt.FileManager.Core.Models.Requests;
 using FluentValidation;
+using Regexes = Ekzakt.Utilities.Validation.Regex;
 
-namespace Ekzakt.FileManager.Core.Validators
+
+namespace Ekzakt.FileManager.Core.Validators;
+
+public class ListFilesRequestValidator : AbstractValidator<ListFilesRequest>
 {
-    public class ListFilesRequestValidator : AbstractValidator<ListFilesRequest>
+    public ListFilesRequestValidator()
     {
-        public ListFilesRequestValidator()
-        {
-            // TODO: Make this simpler!
-            RuleFor(request => request.ContainerName).NotEmpty().WithMessage("Container name cannot be empty.");
-        }
+        RuleFor(x => x.ContainerName)
+            .NotNull()
+            .NotEmpty()
+            .Matches(Regexes.Azure.StorageAccount.BLOB_CONTAINER_NAME);
     }
 }
