@@ -6,7 +6,6 @@ public class SaveFileRequest : AbstractFileRequest
 {
     public string FileName { get; set; } = string.Empty;
 
-
     [NonSerialized]
     public FileStream? FileStream;
 
