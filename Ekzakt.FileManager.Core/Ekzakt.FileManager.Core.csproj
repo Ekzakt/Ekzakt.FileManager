@@ -52,6 +52,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Ekzakt.Showcases\Ekzakt.FileManager.Core.Models\Ekzakt.FileManager.Core.Models.csproj" />
+	  <ProjectReference Include="..\Ekzakt.FileManager.Core.Models\Ekzakt.FileManager.Core.Models.csproj" />
 	</ItemGroup>
 </Project>
