@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Authors>Ekzakt</Authors>
@@ -13,9 +13,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Azure.Identity" Version="1.10.4" />
 		<PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
-		<PackageReference Include="Ekzakt.Utilities" Version="0.2.4" />
+		<PackageReference Include="Ekzakt.Utilities" Version="0.2.6" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
 	</ItemGroup>
 
@@ -50,5 +49,9 @@
 
 	<ItemGroup>
 		<None Include="README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Ekzakt.Showcases\Ekzakt.FileManager.Core.Models\Ekzakt.FileManager.Core.Models.csproj" />
 	</ItemGroup>
 </Project>
