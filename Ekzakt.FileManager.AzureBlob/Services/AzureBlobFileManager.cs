@@ -154,7 +154,8 @@ namespace Ekzakt.FileManager.AzureBlob.Services
                         filesList.Add(new FileInformation
                         {
                             Name = blobItem.Name,
-                            Size = blobItem.Properties.ContentLength ?? 0
+                            Size = blobItem.Properties.ContentLength ?? 0,
+                            CreatedOn = blobItem.Properties.CreatedOn
                         });
                     }
                 }
