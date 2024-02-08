@@ -6,5 +6,5 @@ public class FileInformation
 
     public long Size { get; set; } = 0;
 
-    public DateTimeOffset? CreatedOn { get; set; }
+    public DateTime? CreatedOn { get; set; }
 }

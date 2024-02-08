@@ -151,11 +151,13 @@ namespace Ekzakt.FileManager.AzureBlob.Services
                 {
                     if (blobItem.Properties != null)
                     {
+                        var createdOn = blobItem.Properties.CreatedOn;
+
                         filesList.Add(new FileInformation
                         {
                             Name = blobItem.Name,
                             Size = blobItem.Properties.ContentLength ?? 0,
-                            CreatedOn = blobItem.Properties.CreatedOn
+                            CreatedOn = createdOn?.DateTime
                         });
                     }
                 }
