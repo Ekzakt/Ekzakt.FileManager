@@ -13,13 +13,13 @@ public class FileProgressHandler : IProgress<long>
     }
 
 
-    public void Report(long bytesSend)
+    public void Report(long bytesSent)
     {
         var args = new ProgressEventArgs
         {
             FileName = _saveFileRequest.FileName,
             FileSize = _saveFileRequest.FileLength,
-            BytesSent = bytesSend,
+            BytesSent = bytesSent,
         };
 
         _saveFileRequest.ProgressHandler?.Report(args);
