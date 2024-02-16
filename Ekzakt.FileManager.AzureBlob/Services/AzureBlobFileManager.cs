@@ -12,6 +12,9 @@ using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.AzureBlob.Exceptions;
 using Ekzakt.FileManager.Core.Models;
 using Azure.Storage.Sas;
+using System.Text;
+using Azure.Storage.Blobs.Specialized;
+using System.Text.Json;
 
 namespace Ekzakt.FileManager.AzureBlob.Services
 {
@@ -20,6 +23,7 @@ namespace Ekzakt.FileManager.AzureBlob.Services
         private readonly ILogger<AzureBlobFileManager> _logger;
         private readonly BlobServiceClient _blobServiceClient;
         private readonly SaveFileRequestValidator _saveFileValidator;
+        private readonly SaveChunkedFileRequestValidator _saveChunkedFileValidator;
         private readonly DownloadFileRequestValidator _downloadFileValidator;
         private readonly ListFilesRequestValidator _listFilesValidator;
         private readonly DeleteFileRequestValidator _deleteFileValidator;
@@ -27,15 +31,18 @@ namespace Ekzakt.FileManager.AzureBlob.Services
         private BlobContainerClient? _blobContainerClient;
 
         private SaveFileRequest? _saveFileRequest;
+        private SaveChunkedFileRequest? _saveChunkedFileRequest;
         private ListFilesRequest? _listFilesRequest;
         private DeleteFileRequest? _deleteFileRequest;
         private DownloadFileRequest? _downloadFileRequest;
 
+        static List<string> blockBlobIds = new();
 
         public AzureBlobFileManager(
             ILogger<AzureBlobFileManager> logger,
             BlobServiceClient blobServiceClient,
             SaveFileRequestValidator saveFileValidator,
+            SaveChunkedFileRequestValidator saveChunkedFileValidator,
             DownloadFileRequestValidator downloadFileValidator,
             ListFilesRequestValidator listFilesValidator,
             DeleteFileRequestValidator deleteFileValidator)
@@ -44,6 +51,7 @@ namespace Ekzakt.FileManager.AzureBlob.Services
             _logger = logger;
             _blobServiceClient = blobServiceClient;
             _saveFileValidator = saveFileValidator;
+            _saveChunkedFileValidator = saveChunkedFileValidator;
             _downloadFileValidator = downloadFileValidator;
             _listFilesValidator = listFilesValidator;
             _deleteFileValidator = deleteFileValidator;
@@ -84,6 +92,7 @@ namespace Ekzakt.FileManager.AzureBlob.Services
 
                 await blobClient.UploadAsync(_saveFileRequest!.FileStream, GetBlobUploadOptions(), cancellationToken);
 
+
                 _logger.LogInformation("The file {FileName} created successfully. CorrelationId: {CorrelationId}", _saveFileRequest!.FileName, _saveFileRequest!.CorrelationId);
 
                 return new FileResponse<string?>
@@ -92,6 +101,7 @@ namespace Ekzakt.FileManager.AzureBlob.Services
                     Message = "File created successfully.",
                     CorrelationId = _saveFileRequest.CorrelationId
                 };
+
             }
             catch (BlobClientExistsException ex)
             {
@@ -120,6 +130,105 @@ namespace Ekzakt.FileManager.AzureBlob.Services
                 _logger.LogInformation("Closing request-filestream. CorrelationId: {CorrellationId}.", _saveFileRequest!.CorrelationId);
 
                 _saveFileRequest!.FileStream?.Close();
+            }
+        }
+
+
+        public async Task<FileResponse<string?>> SaveFileChunkedAsync<T>(T saveFileRequest, CancellationToken cancellationToken = default)
+            where T : AbstractFileRequest
+        {
+
+            _saveChunkedFileRequest = saveFileRequest as SaveChunkedFileRequest;
+
+
+            if (!ValidateRequest(_saveChunkedFileRequest!, _saveChunkedFileValidator, out FileResponse<string?> validationResponse))
+            {
+                return validationResponse!;
+            }
+
+
+            if (!EnsureBlobContainer<string?>(_saveChunkedFileRequest!.ContainerName, _saveChunkedFileRequest!.CorrelationId, out FileResponse<string?> blobContainerResponse))
+            {
+                return blobContainerResponse;
+            }
+
+
+            try
+            {
+                if (_saveChunkedFileRequest!.ChunkIndex == 0)
+                {
+                    _logger.LogRequestStarted(_saveChunkedFileRequest);
+                }
+
+                var blockBlobClient = _blobContainerClient!.GetBlockBlobClient(_saveChunkedFileRequest!.FileName);
+
+                if (await blockBlobClient.ExistsAsync(cancellationToken))
+                {
+                    throw new BlobClientExistsException(_saveChunkedFileRequest!.FileName, _saveChunkedFileRequest!.ContainerName);
+                }
+
+
+                if (_saveChunkedFileRequest!.ChunkIndex == 0)
+                {
+                    blockBlobIds = new();
+                }
+
+                var blockId = BitConverter.GetBytes(_saveChunkedFileRequest!.ChunkIndex);
+                var base64BlockId = Convert.ToBase64String(blockId);
+
+                blockBlobIds.Add(base64BlockId);
+
+                using var ms = new MemoryStream(_saveChunkedFileRequest!.ChunkData!);
+
+                await blockBlobClient.StageBlockAsync(base64BlockId, ms);
+
+
+                if (_saveChunkedFileRequest.Commit)
+                {
+                    await blockBlobClient.CommitBlockListAsync(blockBlobIds);
+
+                    blockBlobIds = new();
+
+                    _logger.LogInformation("The file {FileName} created successfully. CorrelationId: {CorrelationId}", _saveChunkedFileRequest!.FileName, _saveChunkedFileRequest!.CorrelationId);
+
+                    return new FileResponse<string?>
+                    {
+                        Status = HttpStatusCode.Continue,
+                        Message = "File created successfully.",
+                        CorrelationId = _saveChunkedFileRequest.CorrelationId
+                    };
+                }
+                else
+                { 
+                    return new FileResponse<string?>
+                    {
+                        Status = HttpStatusCode.Continue,
+                        Message = "Continue uploading.",
+                        CorrelationId = _saveChunkedFileRequest.CorrelationId
+                    };
+                }
+            }
+            catch (BlobClientExistsException ex)
+            {
+                _logger.LogError("The file {FileName} already exists. It has not been overwritten. CorrelationId: {CorrelationId}. Exception: {Exception}", _saveChunkedFileRequest!.FileName, _saveChunkedFileRequest!.CorrelationId, ex);
+
+                return new FileResponse<string?>
+                {
+                    Status = HttpStatusCode.BadRequest,
+                    Message = "The file already exists. It has not been overwritten.",
+                    CorrelationId = _saveChunkedFileRequest!.CorrelationId
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occured while saving the file {FileName}. CorrelationId: {CorrelationId}. Exception {Exception}", _saveChunkedFileRequest!.FileName, _saveChunkedFileRequest!.CorrelationId, ex);
+
+                return new FileResponse<string?>
+                {
+                    Status = HttpStatusCode.InternalServerError,
+                    Message = "File could not be saved.",
+                    CorrelationId = _saveChunkedFileRequest!.CorrelationId
+                };
             }
         }
 
@@ -162,7 +271,7 @@ namespace Ekzakt.FileManager.AzureBlob.Services
                     }
                 }
 
-                _logger.LogInformation("Blobclients retieved successfully. CorrelationId: {CorrelationId}", _listFilesRequest!.CorrelationId);
+                _logger.LogInformation("Blobclients retrieved successfully. CorrelationId: {CorrelationId}", _listFilesRequest!.CorrelationId);
 
                 return new FileResponse<IEnumerable<FileInformation>?>
                 {
@@ -286,7 +395,6 @@ namespace Ekzakt.FileManager.AzureBlob.Services
                     Sas = sasBuilder.ToSasQueryParameters(userDelegationKey, _blobServiceClient.AccountName)
                 };
 
-
                 var downloadResponse = new DownloadFileResponse()
                 { 
                     DownloadUri = blobUriBuilder.ToUri(),
@@ -294,7 +402,6 @@ namespace Ekzakt.FileManager.AzureBlob.Services
 
                 };
                 
-
                 var sasToken = blobUriBuilder.ToUri().ToString();
 
                 _logger.LogInformation("The download token is generated successfyly. CorrelationId {CorrelationId}.", _downloadFileRequest!.CorrelationId);
@@ -348,6 +455,7 @@ namespace Ekzakt.FileManager.AzureBlob.Services
             if (_blobContainerClient is not null && _blobContainerClient.Name.Equals(containerName))
             {
                 response = new();
+
                 return true;
             }
 
@@ -356,6 +464,7 @@ namespace Ekzakt.FileManager.AzureBlob.Services
                 _blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 
                 response = new();
+
                 return true;
             }
             catch (RequestFailedException ex) when (ex.Status == 404)

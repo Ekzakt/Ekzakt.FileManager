@@ -5,11 +5,11 @@ namespace Ekzakt.FileManager.AzureBlob.Services;
 
 public class FileProgressHandler : IProgress<long>
 {
-    private readonly SaveFileRequest _saveFileRequest;
+    private readonly AbstractSaveFileRequest _saveFileRequest;
 
-    public FileProgressHandler(SaveFileRequest saveFileRequest)
+    public FileProgressHandler(AbstractSaveFileRequest saveFileRequest)
     {
-        _saveFileRequest = saveFileRequest;    
+        _saveFileRequest = saveFileRequest;
     }
 
 
@@ -18,7 +18,7 @@ public class FileProgressHandler : IProgress<long>
         var args = new ProgressEventArgs
         {
             FileName = _saveFileRequest.FileName,
-            FileSize = _saveFileRequest.FileLength,
+            FileSize = _saveFileRequest.InitialFileSize,
             BytesSent = bytesSent,
         };
 

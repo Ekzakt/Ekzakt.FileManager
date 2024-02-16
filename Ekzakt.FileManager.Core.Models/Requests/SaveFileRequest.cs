@@ -1,14 +1,13 @@
-﻿namespace Ekzakt.FileManager.Core.Models.Requests;
+﻿using System.Text.Json.Serialization;
 
-public class SaveFileRequest : AbstractFileRequest
+namespace Ekzakt.FileManager.Core.Models.Requests;
+
+public class SaveFileRequest : AbstractSaveFileRequest
 {
-    public string FileName { get; set; } = string.Empty;
-
-    [NonSerialized]
+    [JsonIgnore]
     public Stream? FileStream;
 
-    [NonSerialized]
-    public IProgress<ProgressEventArgs>? ProgressHandler;
+    public override long Length => FileStream?.Length ?? 0;
 
-    public long FileLength => FileStream?.Length ?? 0;
+    public override long InitialFileSize { get; set; }
 }

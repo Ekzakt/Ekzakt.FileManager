@@ -20,12 +20,9 @@ public static class LoggerExtensions
     public static void LogRequestFinished<TLogger, TRequest>(this ILogger<TLogger> logger, TRequest? request)
         where TLogger : class
         where TRequest : AbstractFileRequest?
-
     {
         logger.LogInformation("{RequestName} finished. CorrelationId: {CorrelationId}",
                 typeof(TRequest).Name,
                 request!.CorrelationId);
     }
-
-
 }
