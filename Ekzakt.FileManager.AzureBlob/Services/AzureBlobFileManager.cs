@@ -180,7 +180,7 @@ namespace Ekzakt.FileManager.AzureBlob.Services
 
                 using var ms = new MemoryStream(_saveChunkedFileRequest!.ChunkData!);
 
-                await blockBlobClient.StageBlockAsync(base64BlockId, ms);
+                await blockBlobClient.StageBlockAsync(base64BlockId, ms, cancellationToken: cancellationToken);
 
 
                 if (_saveChunkedFileRequest.Commit)
