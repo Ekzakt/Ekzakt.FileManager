@@ -10,9 +10,8 @@ public static class LoggerExtensions
         where TLogger : class
         where TRequest : AbstractFileRequest?
     {
-        logger.LogInformation("{RequestName} started. CorrelationId: {CorrelationId}, Request: {saveFileRequest}",
+        logger.LogInformation("{RequestName} started. Request: {saveFileRequest}",
                 typeof(TRequest).Name,
-                request!.CorrelationId,
                 JsonSerializer.Serialize(request));
     }
 
@@ -21,8 +20,7 @@ public static class LoggerExtensions
         where TLogger : class
         where TRequest : AbstractFileRequest?
     {
-        logger.LogInformation("{RequestName} finished. CorrelationId: {CorrelationId}",
-                typeof(TRequest).Name,
-                request!.CorrelationId);
+        logger.LogInformation("{RequestName} finished",
+                typeof(TRequest).Name);
     }
 }

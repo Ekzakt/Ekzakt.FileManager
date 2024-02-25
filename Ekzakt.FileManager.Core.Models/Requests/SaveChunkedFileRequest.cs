@@ -17,5 +17,5 @@ public class SaveChunkedFileRequest : AbstractSaveFileRequest
 
     public override long InitialFileSize { get; set ; }
 
-    public override long Length => InitialFileSize;
+    public override long ContentLength => InitialFileSize;
 }

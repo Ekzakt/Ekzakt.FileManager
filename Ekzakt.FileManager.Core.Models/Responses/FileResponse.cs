@@ -11,10 +11,5 @@ public class FileResponse<T>
 
     public string Message { get; set; } = string.Empty;
 
-    public Guid CorrelationId { get; set; }
-
-    public bool IsSuccess()
-    {
-        return Status >= HttpStatusCode.OK && Status < HttpStatusCode.Ambiguous;
-    }
+    public bool IsSuccess() =>  Status >= HttpStatusCode.OK && Status<HttpStatusCode.Ambiguous;
 }

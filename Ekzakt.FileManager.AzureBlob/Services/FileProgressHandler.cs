@@ -15,9 +15,14 @@ public class FileProgressHandler : IProgress<long>
 
     public void Report(long bytesSent)
     {
+        if (_saveFileRequest is null)
+        {
+            return;
+        }
+
         var args = new ProgressEventArgs
         {
-            FileName = _saveFileRequest.FileName,
+            FileName = _saveFileRequest.OriginalFilename,
             FileSize = _saveFileRequest.InitialFileSize,
             BytesSent = bytesSent,
         };

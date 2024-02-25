@@ -28,7 +28,6 @@ public abstract class AbstractFileManager
 
             _logger.LogWarning("{requestName} validation failed. CorrelationId: {correlationId}, Error: {errorMessage}",
                 typeof(TRequest).Name,
-                request.CorrelationId,
                 errorMessage
             );
 
@@ -36,7 +35,6 @@ public abstract class AbstractFileManager
             {
                 Status = HttpStatusCode.BadRequest,
                 Message = errorMessage,
-                CorrelationId = request.CorrelationId
             };
 
             return false;

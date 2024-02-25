@@ -13,7 +13,7 @@ public class SaveChunkedFileRequestValidator : AbstractValidator<SaveChunkedFile
             .NotEmpty()
             .Matches(Regexes.Azure.StorageAccount.BLOB_CONTAINER_NAME);
 
-        RuleFor(x => x.FileName)
+        RuleFor(x => x.OriginalFilename)
             .NotNull()
             .NotEmpty()
             .Matches(Regexes.Azure.StorageAccount.BLOB_CLIENT_NAME);

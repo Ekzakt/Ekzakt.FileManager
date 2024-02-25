@@ -7,7 +7,8 @@ public class SaveFileRequest : AbstractSaveFileRequest
     [JsonIgnore]
     public Stream? FileStream;
 
-    public override long Length => FileStream?.Length ?? 0;
+    public override long ContentLength => FileStream?.Length ?? 0;
 
     public override long InitialFileSize { get; set; }
+
 }
