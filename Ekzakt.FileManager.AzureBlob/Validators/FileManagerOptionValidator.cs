@@ -1,6 +1,6 @@
-﻿using Ekzakt.FileManager.AzureBlob.Configuration;
-using Regexes = Ekzakt.Utilities.Validation.Regex;
+﻿using Regexes = Ekzakt.Utilities.Validation.Regex;
 using FluentValidation;
+using Ekzakt.FileManager.Core.Options;
 
 namespace Ekzakt.FileManager.AzureBlob.Validators;
 

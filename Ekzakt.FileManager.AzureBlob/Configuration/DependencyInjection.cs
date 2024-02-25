@@ -1,5 +1,6 @@
 ﻿using Ekzakt.FileManager.AzureBlob.Services;
 using Ekzakt.FileManager.Core.Contracts;
+using Ekzakt.FileManager.Core.Options;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 

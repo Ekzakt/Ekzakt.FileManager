@@ -1,6 +1,6 @@
 ﻿using Ekzakt.FileManager.Core.Contracts;
 
-namespace Ekzakt.FileManager.AzureBlob.Configuration;
+namespace Ekzakt.FileManager.Core.Options;
 
 public class FileManagerOptions
 {
