@@ -4,7 +4,9 @@ namespace Ekzakt.FileManager.AzureBlob.Configuration;
 
 public class FileManagerOptions
 {
-    public const string SectionName = "Ekzakt:FileManager:Azure:Storage";
+    public const string SectionName = "Ekzakt:FileManager";
 
     public string[] ContainerNames { get; set; } = [];
+
+    public UploadOptions Upload { get; set; } = new();
 }

@@ -26,7 +26,7 @@ public abstract class AbstractFileManager
         {
             var errorMessage = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
 
-            _logger.LogWarning("{requestName} validation failed. CorrelationId: {correlationId}, Error: {errorMessage}",
+            _logger.LogWarning("{requestName} validation failed. Error: {errorMessage}",
                 typeof(TRequest).Name,
                 errorMessage
             );

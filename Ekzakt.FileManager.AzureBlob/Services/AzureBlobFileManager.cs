@@ -4,6 +4,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
+using Ekzakt.FileManager.AzureBlob.Configuration;
 using Ekzakt.FileManager.AzureBlob.Exceptions;
 using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Extensions;
@@ -12,14 +13,15 @@ using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
 using Ekzakt.FileManager.Core.Validators;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Net;
-
 
 namespace Ekzakt.FileManager.AzureBlob.Services;
 
 public class AzureBlobFileManager : AbstractFileManager, IFileManager
 {
     private readonly ILogger<AzureBlobFileManager> _logger;
+    private readonly FileManagerOptions _fileManangerOptions;
     private readonly BlobServiceClient _blobServiceClient;
     private readonly SaveFileRequestValidator _saveFileValidator;
     private readonly SaveChunkedFileRequestValidator _saveChunkedFileValidator;
@@ -39,6 +41,7 @@ public class AzureBlobFileManager : AbstractFileManager, IFileManager
 
     public AzureBlobFileManager(
         ILogger<AzureBlobFileManager> logger,
+        IOptions<FileManagerOptions> fileManangerOptions,
         BlobServiceClient blobServiceClient,
         SaveFileRequestValidator saveFileValidator,
         SaveChunkedFileRequestValidator saveChunkedFileValidator,
@@ -48,6 +51,7 @@ public class AzureBlobFileManager : AbstractFileManager, IFileManager
         : base(logger)
     {
         _logger = logger;
+        _fileManangerOptions = fileManangerOptions.Value;
         _blobServiceClient = blobServiceClient;
         _saveFileValidator = saveFileValidator;
         _saveChunkedFileValidator = saveChunkedFileValidator;
@@ -70,7 +74,7 @@ public class AzureBlobFileManager : AbstractFileManager, IFileManager
         }
 
 
-        if (!EnsureBlobContainer<string?>(_saveFileRequest!.ContainerName, out FileResponse<string?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<string?>(_saveFileRequest!.ContainerName, out FileResponse<string?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
@@ -142,7 +146,7 @@ public class AzureBlobFileManager : AbstractFileManager, IFileManager
         }
 
 
-        if (!EnsureBlobContainer<string?>(_saveChunkedFileRequest!.ContainerName, out FileResponse<string?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<string?>(_saveChunkedFileRequest!.ContainerName, out FileResponse<string?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
@@ -234,7 +238,7 @@ public class AzureBlobFileManager : AbstractFileManager, IFileManager
         }
 
 
-        if (!EnsureBlobContainer<IEnumerable<FileInformation>?>(_listFilesRequest!.ContainerName, out FileResponse<IEnumerable<FileInformation>?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<IEnumerable<FileInformation>?>(_listFilesRequest!.ContainerName, out FileResponse<IEnumerable<FileInformation>?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
@@ -294,7 +298,7 @@ public class AzureBlobFileManager : AbstractFileManager, IFileManager
         }
 
 
-        if (!EnsureBlobContainer<string?>(_deleteFileRequest!.ContainerName, out FileResponse<string?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<string?>(_deleteFileRequest!.ContainerName, out FileResponse<string?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
@@ -348,7 +352,7 @@ public class AzureBlobFileManager : AbstractFileManager, IFileManager
         }
 
 
-        if (!EnsureBlobContainer<DownloadFileResponse?>(_downloadFileRequest!.ContainerName, out FileResponse<DownloadFileResponse?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<DownloadFileResponse?>(_downloadFileRequest!.ContainerName, out FileResponse<DownloadFileResponse?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
@@ -424,7 +428,8 @@ public class AzureBlobFileManager : AbstractFileManager, IFileManager
             TransferOptions = new StorageTransferOptions
             {
                 MaximumConcurrency = Environment.ProcessorCount * 2,
-                MaximumTransferSize = 50 * 1024 * 1024
+                InitialTransferSize = _fileManangerOptions.Upload.InitialTransferSize,
+                MaximumTransferSize = _fileManangerOptions.Upload.MaximumTransferSize
             }
         };
 
@@ -432,7 +437,7 @@ public class AzureBlobFileManager : AbstractFileManager, IFileManager
     }
 
 
-    private bool EnsureBlobContainer<TResponse>(string containerName, out FileResponse<TResponse?> response)
+    private bool EnsureBlobContainerClient<TResponse>(string containerName, out FileResponse<TResponse?> response)
         where TResponse : class?
     {
         if (_blobContainerClient is not null && _blobContainerClient.Name.Equals(containerName))
