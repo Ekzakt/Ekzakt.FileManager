@@ -4,16 +4,16 @@ using Regexes = Ekzakt.Utilities.Validation.Regex;
 
 namespace Ekzakt.FileManager.Core.Validators;
 
-public class SaveChunkedFileRequestValidator : AbstractValidator<SaveChunkedFileRequest>
+public class SaveChunkedFileRequestValidator : AbstractValidator<SaveFileChunkedRequest>
 {
     public SaveChunkedFileRequestValidator()
     {
-        RuleFor(x => x.ContainerName)
+        RuleFor(x => x.BlobContainerName)
             .NotNull()
             .NotEmpty()
             .Matches(Regexes.Azure.StorageAccount.BLOB_CONTAINER_NAME);
 
-        RuleFor(x => x.OriginalFilename)
+        RuleFor(x => x.FileName)
             .NotNull()
             .NotEmpty()
             .Matches(Regexes.Azure.StorageAccount.BLOB_CLIENT_NAME);

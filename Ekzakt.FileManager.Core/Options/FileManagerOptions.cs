@@ -1,6 +1,4 @@
-﻿using Ekzakt.FileManager.Core.Contracts;
-
-namespace Ekzakt.FileManager.Core.Options;
+﻿namespace Ekzakt.FileManager.Core.Options;
 
 public class FileManagerOptions
 {

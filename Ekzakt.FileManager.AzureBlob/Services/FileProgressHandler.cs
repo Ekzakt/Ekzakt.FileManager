@@ -22,7 +22,7 @@ public class FileProgressHandler : IProgress<long>
 
         var args = new ProgressEventArgs
         {
-            FileName = _saveFileRequest.OriginalFilename,
+            FileName = _saveFileRequest.FileName,
             FileSize = _saveFileRequest.InitialFileSize,
             BytesSent = bytesSent,
         };

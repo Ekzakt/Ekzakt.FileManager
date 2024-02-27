@@ -9,7 +9,7 @@ public class ListFilesRequestValidator : AbstractValidator<ListFilesRequest>
 {
     public ListFilesRequestValidator()
     {
-        RuleFor(x => x.ContainerName)
+        RuleFor(x => x.BlobContainerName)
             .NotNull()
             .NotEmpty()
             .Matches(Regexes.Azure.StorageAccount.BLOB_CONTAINER_NAME);

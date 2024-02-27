@@ -2,10 +2,10 @@
 
 namespace Ekzakt.FileManager.Core.Models.Requests;
 
-public class SaveChunkedFileRequest : AbstractSaveFileRequest
+public class SaveFileChunkedRequest : AbstractSaveFileRequest
 {
     [JsonIgnore]
-    public byte[] ChunkData { get; set; } = new byte[0];
+    public string ChunkData { get; set; } = string.Empty;
 
     public int ChunkIndex { get; set; }
 

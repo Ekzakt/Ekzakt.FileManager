@@ -20,7 +20,7 @@ public static class LoggerExtensions
         where TLogger : class
         where TRequest : AbstractFileRequest?
     {
-        logger.LogInformation("{RequestName} finished",
+        logger.LogInformation("{RequestName} finished.",
                 typeof(TRequest).Name);
     }
 }
