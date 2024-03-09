@@ -34,11 +34,12 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
         services.AddScoped<IFileManager, AzureBlobFileManager>();
+
         services.AddScoped<IFileOperation<SaveFileRequest, string?>, SaveFileOperation>();
         services.AddScoped<IFileOperation<SaveFileChunkedRequest, string?>, SaveFileChunkedOperation>();
         services.AddScoped<IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?>, ListFilesOperation>();
         services.AddScoped<IFileOperation<DeleteFileRequest, string?>, DeleteFileOperation>();
-        services.AddScoped<IFileOperation<DownloadFileRequest, DownloadFileResponse?>, DownloadFileOperation>();
+        services.AddScoped<IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?>, DownloadSasTokenFileOperation>();
 
         return services;
     }

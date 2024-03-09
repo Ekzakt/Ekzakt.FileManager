@@ -11,7 +11,7 @@ public class AzureBlobFileManager : IFileManager
     private readonly IFileOperation<SaveFileRequest, string?> _saveFileOperation;
     private readonly IFileOperation<SaveFileChunkedRequest, string?> _saveFileChunkedOperation;
     private readonly IFileOperation<DeleteFileRequest, string?> _deleteFileOperation;
-    private readonly IFileOperation<DownloadFileRequest, DownloadFileResponse?> _downloadFileOperation;
+    private readonly IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?> _downloadFileOperation;
 
 
     public AzureBlobFileManager(
@@ -19,7 +19,7 @@ public class AzureBlobFileManager : IFileManager
         IFileOperation<SaveFileRequest, string?> saveFileOperation,
         IFileOperation<SaveFileChunkedRequest, string?> saveFileChunkedOperation,
         IFileOperation<DeleteFileRequest, string?> deleteFileOperation,
-        IFileOperation<DownloadFileRequest, DownloadFileResponse?> downloadFileOperation)
+        IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?> downloadFileOperation)
     {
         _listFilesOperation = listFilesOperation;
         _saveFileOperation = saveFileOperation;
@@ -71,11 +71,11 @@ public class AzureBlobFileManager : IFileManager
     }
 
 
-    public async Task<FileResponse<DownloadFileResponse?>> DownloadFileAsync<T>(T downloadFileRequest, CancellationToken cancellationToken = default) where T : AbstractFileRequest
+    public async Task<FileResponse<DownloadSasTokenResponse?>> DownloadSasToken<T>(T downloadFileRequest, CancellationToken cancellationToken = default) where T : AbstractFileRequest
     {
         var request = downloadFileRequest is not null
-            ? downloadFileRequest as DownloadFileRequest
-            : new DownloadFileRequest();
+            ? downloadFileRequest as DownloadSasTokenRequest
+            : new DownloadSasTokenRequest();
 
         return await _downloadFileOperation.ExecuteAsync(request!, cancellationToken);
     }

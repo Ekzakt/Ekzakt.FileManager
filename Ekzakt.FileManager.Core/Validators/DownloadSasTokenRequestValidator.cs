@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace Ekzakt.FileManager.Core.Validators;
 
-public class DownloadFileRequestValidator : AbstractValidator<DownloadFileRequest>
+public class DownloadSasTokenRequestValidator : AbstractValidator<DownloadSasTokenRequest>
 {
-    public DownloadFileRequestValidator()
+    public DownloadSasTokenRequestValidator()
     { 
         // TODO: Make this simpler!
         RuleFor(request => request.BlobContainerName).NotEmpty().WithMessage("Container name cannot be empty.");

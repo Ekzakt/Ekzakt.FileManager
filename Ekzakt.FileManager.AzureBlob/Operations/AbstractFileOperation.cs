@@ -6,7 +6,7 @@ using FluentValidation;
 using Microsoft.Extensions.Logging;
 using System.Net;
 
-namespace Ekzakt.FileManager.Core.Contracts;
+namespace Ekzakt.FileManager.AzureBlob.Operations;
 
 public abstract class AbstractFileOperation<TLogger>
     where TLogger : class
@@ -15,7 +15,7 @@ public abstract class AbstractFileOperation<TLogger>
     private readonly BlobServiceClient _blobServiceClient;
     private BlobContainerClient? _blobContainerClient;
 
-    public BlobServiceClient BlobServiceClient => _blobServiceClient; 
+    public BlobServiceClient BlobServiceClient => _blobServiceClient;
 
     public BlobContainerClient? BlobContainerClient => _blobContainerClient;
 

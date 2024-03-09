@@ -1,6 +1,6 @@
 ﻿namespace Ekzakt.FileManager.Core.Models.Responses;
 
-public class DownloadFileResponse
+public class DownloadSasTokenResponse
 {
     public Uri? DownloadUri { get; set; }
 

@@ -10,35 +10,35 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-public class DownloadFileOperation : AbstractFileOperation<DownloadFileOperation>, IFileOperation<DownloadFileRequest, DownloadFileResponse?>
+public class DownloadSasTokenFileOperation : AbstractFileOperation<DownloadSasTokenFileOperation>, IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?>
 {
-    private readonly ILogger<DownloadFileOperation> _logger;
-    private readonly DownloadFileRequestValidator _validator;
+    private readonly ILogger<DownloadSasTokenFileOperation> _logger;
+    private readonly DownloadSasTokenRequestValidator _validator;
 
-    public DownloadFileOperation(
-        ILogger<DownloadFileOperation> logger, 
-        DownloadFileRequestValidator validator,
+    public DownloadSasTokenFileOperation(
+        ILogger<DownloadSasTokenFileOperation> logger, 
+        DownloadSasTokenRequestValidator validator,
         BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
     {
         _logger = logger;
         _validator = validator;
     }
 
-    public async Task<FileResponse<DownloadFileResponse?>> ExecuteAsync(DownloadFileRequest request, CancellationToken cancellationToken = default)
+    public async Task<FileResponse<DownloadSasTokenResponse?>> ExecuteAsync(DownloadSasTokenRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ValidateRequest(request!, _validator, out FileResponse<DownloadFileResponse?> validationResponse))
+        if (!ValidateRequest(request!, _validator, out FileResponse<DownloadSasTokenResponse?> validationResponse))
         {
             return validationResponse!;
         }
 
 
-        if (!EnsureBlobContainerClient<DownloadFileResponse?>(request!.BlobContainerName, out FileResponse<DownloadFileResponse?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<DownloadSasTokenResponse?>(request!.BlobContainerName, out FileResponse<DownloadSasTokenResponse?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
 
 
-        FileResponse<DownloadFileResponse?> response = await Task.Run(() =>
+        FileResponse<DownloadSasTokenResponse?> response = await Task.Run(() =>
         {
             try
             {
@@ -66,7 +66,7 @@ public class DownloadFileOperation : AbstractFileOperation<DownloadFileOperation
                     Sas = sasBuilder.ToSasQueryParameters(userDelegationKey, BlobServiceClient.AccountName)
                 };
 
-                var downloadResponse = new DownloadFileResponse()
+                var downloadResponse = new DownloadSasTokenResponse()
                 {
                     DownloadUri = blobUriBuilder.ToUri(),
                     ExpiresOn = sasBuilder.ExpiresOn
@@ -77,7 +77,7 @@ public class DownloadFileOperation : AbstractFileOperation<DownloadFileOperation
 
                 _logger.LogInformation("The download token is generated successfyly.");
 
-                return new FileResponse<DownloadFileResponse?>
+                return new FileResponse<DownloadSasTokenResponse?>
                 {
                     Status = HttpStatusCode.Created,
                     Message = "The download uri was created successfully.",
@@ -88,7 +88,7 @@ public class DownloadFileOperation : AbstractFileOperation<DownloadFileOperation
             {
                 _logger.LogError("An error occured while generating the doownload token. Exception {Exception}", ex);
 
-                return new FileResponse<DownloadFileResponse?>
+                return new FileResponse<DownloadSasTokenResponse?>
                 {
                     Status = HttpStatusCode.InternalServerError,
                     Message = "File download uri could not be generated."
