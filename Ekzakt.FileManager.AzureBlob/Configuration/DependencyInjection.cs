@@ -30,6 +30,8 @@ public static class DependencyInjection
             .AddOptions<FileManagerOptions>()
             .ValidateOnStart()
             .BindConfiguration(configSectionPath);
+        
+        // TODO: GitHub issue #9.
 
         services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -40,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?>, ListFilesOperation>();
         services.AddScoped<IFileOperation<DeleteFileRequest, string?>, DeleteFileOperation>();
         services.AddScoped<IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?>, DownloadSasTokenFileOperation>();
+        services.AddScoped<IFileOperation<ReadFileAsStringRequest, string?>, ReadFileAsStringOperation>();
 
         return services;
     }

@@ -1,7 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Extensions;
-using Ekzakt.FileManager.Core.Models;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
 using Ekzakt.FileManager.Core.Validators;
@@ -10,7 +9,7 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-public class ListFilesOperation : AbstractFileOperation<ListFilesOperation>, IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?>
+public class ListFilesOperation : AbstractFileOperation<ListFilesOperation>, IFileOperation<ListFilesRequest, IEnumerable<Core.Models.FileInformation>?>
 {
     private readonly ILogger<ListFilesOperation> _logger;
     private readonly ListFilesRequestValidator _listFilesValidator;
@@ -25,15 +24,15 @@ public class ListFilesOperation : AbstractFileOperation<ListFilesOperation>, IFi
         _listFilesValidator = listFilesValidator;
     }
 
-    public async Task<FileResponse<IEnumerable<FileInformation>?>> ExecuteAsync(ListFilesRequest request, CancellationToken cancellationToken = default)
+    public async Task<FileResponse<IEnumerable<Core.Models.FileInformation>?>> ExecuteAsync(ListFilesRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ValidateRequest(request!, _listFilesValidator, out FileResponse<IEnumerable<FileInformation>?> validationResponse))
+        if (!ValidateRequest(request!, _listFilesValidator, out FileResponse<IEnumerable<Core.Models.FileInformation>?> validationResponse))
         {
             return validationResponse;
         }
 
 
-        if (!EnsureBlobContainerClient<IEnumerable<FileInformation>?>(request!.BlobContainerName, out FileResponse<IEnumerable<FileInformation>?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<IEnumerable<Core.Models.FileInformation>?>(request!.BlobContainerName, out FileResponse<IEnumerable<Core.Models.FileInformation>?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
@@ -43,7 +42,7 @@ public class ListFilesOperation : AbstractFileOperation<ListFilesOperation>, IFi
         {
             _logger.LogRequestStarted(request);
 
-            List<FileInformation> filesList = [];
+            List<Core.Models.FileInformation> filesList = [];
 
             await foreach (var blobItem in BlobContainerClient!.GetBlobsAsync(cancellationToken: cancellationToken))
             {
@@ -51,7 +50,7 @@ public class ListFilesOperation : AbstractFileOperation<ListFilesOperation>, IFi
                 {
                     var createdOn = blobItem.Properties.CreatedOn;
 
-                    filesList.Add(new FileInformation
+                    filesList.Add(new Core.Models.FileInformation
                     {
                         Name = blobItem.Name,
                         Size = blobItem.Properties.ContentLength ?? 0,
@@ -62,7 +61,7 @@ public class ListFilesOperation : AbstractFileOperation<ListFilesOperation>, IFi
 
             _logger.LogInformation("Blobclients retrieved successfully.");
 
-            return new FileResponse<IEnumerable<FileInformation>?>
+            return new FileResponse<IEnumerable<Core.Models.FileInformation>?>
             {
                 Status = filesList.Count > 0 ? HttpStatusCode.OK : HttpStatusCode.NoContent,
                 Message = filesList.Count > 0 ? "File list retreived successfully." : "No filelist could be created.",
@@ -73,7 +72,7 @@ public class ListFilesOperation : AbstractFileOperation<ListFilesOperation>, IFi
         {
             _logger.LogError("An error occured while retreiving filelist from blob container {BlobContainerName}. Exception {Exception}", request!.BlobContainerName, ex);
 
-            return new FileResponse<IEnumerable<FileInformation>?>
+            return new FileResponse<IEnumerable<Core.Models.FileInformation>?>
             {
                 Status = HttpStatusCode.InternalServerError,
                 Message = "File list could not be retreived."
