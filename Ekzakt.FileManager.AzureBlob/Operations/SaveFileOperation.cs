@@ -41,7 +41,7 @@ public class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFile
             return validationResponse!;
         }
 
-        if (!EnsureBlobContainerClient<string?>(request!.BlobContainerName, out FileResponse<string?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<string?>(request!.BaseLocation, out FileResponse<string?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
@@ -52,7 +52,9 @@ public class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFile
 
             request!.FileStream!.Position = 0;
 
-            var blobClient = BlobContainerClient?.GetBlobClient(request!.FileName);
+            request.Paths.Add(request!.FileName);
+
+            var blobClient = BlobContainerClient?.GetBlobClient(request!.GetPathsString());
 
             if (blobClient is null)
             {
@@ -61,12 +63,12 @@ public class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFile
 
             if (await blobClient.ExistsAsync(cancellationToken))
             {
-                throw new BlobClientExistsException(request!.FileName, request!.BlobContainerName);
+                throw new BlobClientExistsException(request!.FileName, request!.BaseLocation);
             }
 
             await blobClient.UploadAsync(request!.FileStream, GetBlobUploadOptions(request), cancellationToken);
 
-            _logger.LogInformation("The file {FileName} created successfully in container {BlobContainer}.", request!.FileName, request!.BlobContainerName);
+            _logger.LogInformation("The file {FileName} created successfully in container {BlobContainer}.", request!.FileName, request!.BaseLocation);
 
             return new FileResponse<string?>
             {
@@ -76,7 +78,7 @@ public class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFile
         }
         catch (BlobClientExistsException ex)
         {
-            _logger.LogError("The file {FileName} already exists in container {BlobContainer}. It has not been overwritten. Exception: {Exception}", request!.FileName, request!.BlobContainerName, ex);
+            _logger.LogError("The file {FileName} already exists in container {BlobContainer}. It has not been overwritten. Exception: {Exception}", request!.FileName, request!.BaseLocation, ex);
 
             return new FileResponse<string?>
             {
@@ -86,7 +88,7 @@ public class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFile
         }
         catch (Exception ex)
         {
-            _logger.LogError("An error occured while saving the file {FileName} in container {BlobContainer}. Exception {Exception}", request!.FileName, request!.BlobContainerName, ex);
+            _logger.LogError("An error occured while saving the file {FileName} in container {BlobContainer}. Exception {Exception}", request!.FileName, request!.BaseLocation, ex);
 
             return new FileResponse<string?>
             {

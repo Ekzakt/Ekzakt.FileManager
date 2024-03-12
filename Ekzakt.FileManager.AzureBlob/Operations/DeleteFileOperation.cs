@@ -31,7 +31,7 @@ public class DeleteFileOperation : AbstractFileOperation<DeleteFileOperation>, I
             return validationResponse;
         }
 
-        if (!EnsureBlobContainerClient<string?>(request!.BlobContainerName, out FileResponse<string?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<string?>(request!.BaseLocation, out FileResponse<string?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
@@ -41,7 +41,9 @@ public class DeleteFileOperation : AbstractFileOperation<DeleteFileOperation>, I
         {
             _logger.LogRequestStarted(request);
 
-            var deleteResult = await BlobContainerClient!.DeleteBlobIfExistsAsync(request!.FileName, cancellationToken: cancellationToken);
+            request.Paths.Add(request!.FileName);
+
+            var deleteResult = await BlobContainerClient!.DeleteBlobIfExistsAsync(request!.GetPathsString(), cancellationToken: cancellationToken);
 
             if (deleteResult == true)
             {

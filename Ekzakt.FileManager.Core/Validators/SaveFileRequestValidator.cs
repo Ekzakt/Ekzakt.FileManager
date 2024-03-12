@@ -8,7 +8,7 @@ public class SaveFileRequestValidator : AbstractValidator<SaveFileRequest>
 {
     public SaveFileRequestValidator()
     {
-        RuleFor(x => x.BlobContainerName)
+        RuleFor(x => x.BaseLocation)
             .NotNull()
             .NotEmpty()
             .Matches(Regexes.Azure.StorageAccount.BLOB_CONTAINER_NAME);

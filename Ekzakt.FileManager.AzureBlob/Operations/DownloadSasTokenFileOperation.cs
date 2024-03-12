@@ -32,7 +32,7 @@ public class DownloadSasTokenFileOperation : AbstractFileOperation<DownloadSasTo
         }
 
 
-        if (!EnsureBlobContainerClient<DownloadSasTokenResponse?>(request!.BlobContainerName, out FileResponse<DownloadSasTokenResponse?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<DownloadSasTokenResponse?>(request!.BaseLocation, out FileResponse<DownloadSasTokenResponse?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
@@ -50,10 +50,12 @@ public class DownloadSasTokenFileOperation : AbstractFileOperation<DownloadSasTo
                 var blobClient = BlobContainerClient!
                     .GetBlobClient(request!.FileName);
 
+                request.Paths.Add(request!.FileName);
+
                 var sasBuilder = new BlobSasBuilder
                 {
-                    BlobContainerName = request!.BlobContainerName,
-                    BlobName = request!.FileName,
+                    BlobContainerName = request!.BaseLocation,
+                    BlobName = request.GetPathsString(),
                     Resource = "b", // "b" for blob, "c" for container
                     StartsOn = DateTimeOffset.UtcNow,
                     ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(1),

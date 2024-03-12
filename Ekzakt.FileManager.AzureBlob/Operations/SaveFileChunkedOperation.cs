@@ -36,7 +36,7 @@ public class SaveFileChunkedOperation : AbstractFileOperation<SaveFileChunkedOpe
         }
 
 
-        if (!EnsureBlobContainerClient<string?>(request!.BlobContainerName, out FileResponse<string?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<string?>(request!.BaseLocation, out FileResponse<string?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
@@ -49,7 +49,9 @@ public class SaveFileChunkedOperation : AbstractFileOperation<SaveFileChunkedOpe
                 _logger.LogRequestStarted(request);
             }
 
-            var blockBlobClient = BlobContainerClient?.GetBlockBlobClient(request!.FileName);
+            request.Paths.Add(request!.FileName);
+
+            var blockBlobClient = BlobContainerClient?.GetBlockBlobClient(request!.GetPathsString());
 
             if (blockBlobClient is null)
             {
@@ -58,7 +60,7 @@ public class SaveFileChunkedOperation : AbstractFileOperation<SaveFileChunkedOpe
 
             if (await blockBlobClient.ExistsAsync(cancellationToken))
             {
-                throw new BlobClientExistsException(request!.FileName, request!.BlobContainerName);
+                throw new BlobClientExistsException(request!.FileName, request!.BaseLocation);
             }
 
             if (request!.ChunkIndex == 0)

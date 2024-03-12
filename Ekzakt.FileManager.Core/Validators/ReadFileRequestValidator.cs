@@ -8,7 +8,7 @@ public class ReadFileRequestValidator : AbstractValidator<ReadFileAsStringReques
     public ReadFileRequestValidator()
     {
         // TODO: Make this simpler!
-        RuleFor(request => request.BlobContainerName).NotEmpty().WithMessage("Container name cannot be empty.");
+        RuleFor(request => request.BaseLocation).NotEmpty().WithMessage("Container name cannot be empty.");
         RuleFor(request => request.FileName).NotEmpty().WithMessage("Blob name cannot be empty.");
     }
 }

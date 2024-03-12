@@ -8,7 +8,7 @@ public class SaveChunkedFileRequestValidator : AbstractValidator<SaveFileChunked
 {
     public SaveChunkedFileRequestValidator()
     {
-        RuleFor(x => x.BlobContainerName)
+        RuleFor(x => x.BaseLocation)
             .NotNull()
             .NotEmpty()
             .Matches(Regexes.Azure.StorageAccount.BLOB_CONTAINER_NAME);

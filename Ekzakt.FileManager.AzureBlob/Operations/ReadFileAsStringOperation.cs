@@ -31,7 +31,7 @@ public class ReadFileAsStringOperation : AbstractFileOperation<ReadFileAsStringO
             return validationResponse!;
         }
 
-        if (!EnsureBlobContainerClient<string?>(request!.BlobContainerName, out FileResponse<string?> blobContainerResponse))
+        if (!EnsureBlobContainerClient<string?>(request!.BaseLocation, out FileResponse<string?> blobContainerResponse))
         {
             return blobContainerResponse;
         }
@@ -40,9 +40,9 @@ public class ReadFileAsStringOperation : AbstractFileOperation<ReadFileAsStringO
         {
             _logger.LogRequestStarted(request);
 
-            var prefixes = string.Join('/', request.Prefixes);
+            request.Paths.Add(request!.FileName);
 
-            var blobClient = BlobContainerClient?.GetBlobClient($"{prefixes}/{request!.FileName}");
+            var blobClient = BlobContainerClient?.GetBlobClient(request.GetPathsString());
 
             if (blobClient is null)
             {
@@ -51,7 +51,7 @@ public class ReadFileAsStringOperation : AbstractFileOperation<ReadFileAsStringO
 
             if (!await blobClient.ExistsAsync(cancellationToken))
             {
-                throw new BlobClientNotFoundException(request!.FileName, request!.BlobContainerName);
+                throw new BlobClientNotFoundException(request!.FileName, request!.BaseLocation);
             }
 
             var data = await ReadBlobClient(blobClient);
@@ -65,7 +65,7 @@ public class ReadFileAsStringOperation : AbstractFileOperation<ReadFileAsStringO
         }
         catch (BlobClientNotFoundException ex)
         {
-            _logger.LogError("The file {FileName} does not exists in container {BlobContainer}. Exception: {Exception}", request!.FileName, request!.BlobContainerName, ex);
+            _logger.LogError("The file {FileName} does not exists in container {BlobContainer}. Exception: {Exception}", request!.FileName, request!.BaseLocation, ex);
 
             return new FileResponse<string?>
             {
@@ -75,7 +75,7 @@ public class ReadFileAsStringOperation : AbstractFileOperation<ReadFileAsStringO
         }
         catch (Exception ex)
         {
-            _logger.LogError("An error occured while reading the file {FileName} in container {BlobContainer}. Exception {Exception}", request!.FileName, request!.BlobContainerName, ex);
+            _logger.LogError("An error occured while reading the file {FileName} in container {BlobContainer}. Exception {Exception}", request!.FileName, request!.BaseLocation, ex);
 
             return new FileResponse<string?>
             {
