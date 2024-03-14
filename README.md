@@ -1,4 +1,4 @@
 # Ekzakt.FileManager
-Package for managing files in an Azure storage account.
+This solution allows managing files from external services. At this time, only an implementation for Microsoft Azure storage accounts is available.
 
-We will finish this readme-file as soon as possible.
+We will finish this readme file as soon as possible.

@@ -28,12 +28,6 @@
 		<ProjectReference Include="..\Ekzakt.FileManager.Core\Ekzakt.FileManager.Core.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<None Update="README.md">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
 	<PropertyGroup>
 		<EnablePackageValidation>true</EnablePackageValidation>
 		<!-- Optional: Detect breaking changes from a previous version -->
@@ -59,4 +53,5 @@
 	<ItemGroup>
 		<None Include="README.md" Pack="true" PackagePath="" />
 	</ItemGroup>
+	
 </Project>
