@@ -4,13 +4,13 @@ using System.Text.Json;
 
 namespace Ekzakt.FileManager.Core.Extensions;
 
-internal static class LoggerExtensions
+public static class LoggerExtensions
 {
     public static void LogRequestStarted<TLogger, TRequest>(this ILogger<TLogger> logger, TRequest? request)
         where TLogger : class
         where TRequest : AbstractFileRequest?
     {
-        logger.LogInformation("{RequestName} started. Request: {saveFileRequest}",
+        logger.LogDebug("{RequestName} started. Request: {saveFileRequest}",
                 typeof(TRequest).Name,
                 JsonSerializer.Serialize(request));
     }
@@ -20,7 +20,7 @@ internal static class LoggerExtensions
         where TLogger : class
         where TRequest : AbstractFileRequest?
     {
-        logger.LogInformation("{RequestName} finished.",
+        logger.LogDebug("{RequestName} finished.",
                 typeof(TRequest).Name);
     }
 }
