@@ -9,6 +9,6 @@ public class SaveFileRequest : AbstractSaveFileRequest
 
     public override long ContentLength => FileStream?.Length ?? 0;
 
-    public override long InitialFileSize { get; set; }
+    public override long InitialFileSize { get; set; } = 0;
 
 }
