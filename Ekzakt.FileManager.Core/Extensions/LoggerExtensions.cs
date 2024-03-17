@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Ekzakt.FileManager.Core.Extensions;
 
-public static class LoggerExtensions
+internal static class LoggerExtensions
 {
     public static void LogRequestStarted<TLogger, TRequest>(this ILogger<TLogger> logger, TRequest? request)
         where TLogger : class
