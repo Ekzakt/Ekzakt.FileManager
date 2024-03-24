@@ -1,6 +1,6 @@
 ﻿namespace Ekzakt.FileManager.Core.Models;
 
-public class FileInformation
+public class FileProperties
 {
     public string Name { get; set; } = string.Empty;
 

@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Ekzakt.FileManager.AzureBlob.Exceptions;
+using Ekzakt.FileManager.AzureBlob.Extensions;
 using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Extensions;
 using Ekzakt.FileManager.Core.Models.Requests;
@@ -13,16 +14,17 @@ namespace Ekzakt.FileManager.AzureBlob.Operations;
 public class ReadFileAsStringOperation : AbstractFileOperation<ReadFileAsStringOperation>, IFileOperation<ReadFileAsStringRequest, string?>
 {
     private readonly ILogger<ReadFileAsStringOperation> _logger;
-    private readonly ReadFileRequestValidator _validator;
+    private readonly ReadFileAsStringRequestValidator _validator;
 
     public ReadFileAsStringOperation(
         ILogger<ReadFileAsStringOperation> logger,
-        ReadFileRequestValidator validator,
+        ReadFileAsStringRequestValidator validator,
         BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
     {
         _logger = logger;
         _validator = validator;
     }
+
 
     public async Task<FileResponse<string?>> ExecuteAsync(ReadFileAsStringRequest request, CancellationToken cancellationToken = default)
     {
@@ -54,7 +56,7 @@ public class ReadFileAsStringOperation : AbstractFileOperation<ReadFileAsStringO
                 throw new BlobClientNotFoundException(request!.FileName, request!.BaseLocation);
             }
 
-            var data = await ReadBlobClient(blobClient);
+            var data = await blobClient.ReadAsStringAsync();
 
             return new FileResponse<string?>
             {
@@ -88,26 +90,4 @@ public class ReadFileAsStringOperation : AbstractFileOperation<ReadFileAsStringO
             _logger.LogRequestFinished(request);
         }
     }
-
-
-
-
-    #region Helpers
-
-    internal async Task<string?> ReadBlobClient(BlobClient blobClient)
-    {
-        using var stream = new MemoryStream();
-
-        await blobClient.DownloadToAsync(stream);
-
-        stream.Position = 0;
-
-        using var streamReader = new StreamReader(stream);
-
-        var result = await streamReader.ReadToEndAsync();
-
-        return result;
-    }
-
-    #endregion Helpers
 }

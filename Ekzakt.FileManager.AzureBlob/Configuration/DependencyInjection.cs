@@ -39,7 +39,7 @@ public static class DependencyInjection
 
         services.AddScoped<IFileOperation<SaveFileRequest, string?>, SaveFileOperation>();
         services.AddScoped<IFileOperation<SaveFileChunkedRequest, string?>, SaveFileChunkedOperation>();
-        services.AddScoped<IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?>, ListFilesOperation>();
+        services.AddScoped<IFileOperation<ListFilesRequest, IEnumerable<FileProperties>?>, ListFilesOperation>();
         services.AddScoped<IFileOperation<DeleteFileRequest, string?>, DeleteFileOperation>();
         services.AddScoped<IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?>, DownloadSasTokenFileOperation>();
         services.AddScoped<IFileOperation<ReadFileAsStringRequest, string?>, ReadFileAsStringOperation>();

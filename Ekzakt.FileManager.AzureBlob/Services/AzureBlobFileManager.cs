@@ -2,21 +2,21 @@
 using Ekzakt.FileManager.Core.Models;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
+using System.Formats.Tar;
 
 namespace Ekzakt.FileManager.AzureBlob.Services;
 
 public class AzureBlobFileManager : IFileManager
 {
-    private readonly IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?> _listFilesOperation;
+    private readonly IFileOperation<ListFilesRequest, IEnumerable<FileProperties>?> _listFilesOperation;
     private readonly IFileOperation<SaveFileRequest, string?> _saveFileOperation;
     private readonly IFileOperation<SaveFileChunkedRequest, string?> _saveFileChunkedOperation;
     private readonly IFileOperation<DeleteFileRequest, string?> _deleteFileOperation;
     private readonly IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?> _downloadFileOperation;
     private readonly IFileOperation<ReadFileAsStringRequest, string?> _readFileAsStringOperation;
 
-
     public AzureBlobFileManager(
-        IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?> listFilesOperation,
+        IFileOperation<ListFilesRequest, IEnumerable<FileProperties>?> listFilesOperation,
         IFileOperation<SaveFileRequest, string?> saveFileOperation,
         IFileOperation<SaveFileChunkedRequest, string?> saveFileChunkedOperation,
         IFileOperation<DeleteFileRequest, string?> deleteFileOperation,
@@ -32,7 +32,7 @@ public class AzureBlobFileManager : IFileManager
     }
 
 
-    public async Task<FileResponse<IEnumerable<FileInformation>?>> ListFilesAsync<TRequest>(TRequest listFilesRequest, CancellationToken cancellationToken = default)
+    public async Task<FileResponse<IEnumerable<FileProperties>?>> ListFilesAsync<TRequest>(TRequest listFilesRequest, CancellationToken cancellationToken = default)
         where TRequest : AbstractFileRequest
     {
         var request = listFilesRequest is not null
