@@ -4,7 +4,7 @@ using Regexes = Ekzakt.Utilities.Validation.Regex;
 
 namespace Ekzakt.FileManager.Core.Validators;
 
-public class SaveChunkedFileRequestValidator : AbstractValidator<SaveFileChunkedRequest>
+public sealed class SaveChunkedFileRequestValidator : AbstractValidator<SaveFileChunkedRequest>
 {
     public SaveChunkedFileRequestValidator()
     {

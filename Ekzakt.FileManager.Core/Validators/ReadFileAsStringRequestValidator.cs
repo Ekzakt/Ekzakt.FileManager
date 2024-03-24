@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Ekzakt.FileManager.Core.Validators;
 
-public class ReadFileAsStringRequestValidator : AbstractValidator<ReadFileAsStringRequest>
+public sealed class ReadFileAsStringRequestValidator : AbstractValidator<ReadFileAsStringRequest>
 {
     public ReadFileAsStringRequestValidator()
     {

@@ -5,7 +5,7 @@ using Regexes = Ekzakt.Utilities.Validation.Regex;
 
 namespace Ekzakt.FileManager.Core.Validators;
 
-public class ListFilesRequestValidator : AbstractValidator<ListFilesRequest>
+public sealed class ListFilesRequestValidator : AbstractValidator<ListFilesRequest>
 {
     public ListFilesRequestValidator()
     {

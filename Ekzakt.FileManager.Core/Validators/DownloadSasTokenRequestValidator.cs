@@ -3,12 +3,17 @@ using FluentValidation;
 
 namespace Ekzakt.FileManager.Core.Validators;
 
-public class DownloadSasTokenRequestValidator : AbstractValidator<DownloadSasTokenRequest>
+public sealed class DownloadSasTokenRequestValidator : AbstractValidator<DownloadSasTokenRequest>
 {
     public DownloadSasTokenRequestValidator()
     { 
         // TODO: Make this simpler!
-        RuleFor(request => request.BaseLocation).NotEmpty().WithMessage("Container name cannot be empty.");
-        RuleFor(request => request.FileName).NotEmpty().WithMessage("Blob name cannot be empty.");
+        RuleFor(request => request.BaseLocation)
+            .NotEmpty()
+            .WithMessage("Container name cannot be empty.");
+
+        RuleFor(request => request.FileName)
+            .NotEmpty()
+            .WithMessage("Blob name cannot be empty.");
     }
 }
