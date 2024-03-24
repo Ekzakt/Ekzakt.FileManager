@@ -60,7 +60,7 @@ public class SaveFileChunkedOperation : AbstractFileOperation<SaveFileChunkedOpe
 
             if (await blockBlobClient.ExistsAsync(cancellationToken))
             {
-                throw new BlobClientExistsException(request!.FileName, request!.BaseLocation);
+                throw new BlobClientExistsException(request!.BaseLocation, request!.FileName);
             }
 
             if (request!.ChunkIndex == 0)

@@ -53,7 +53,7 @@ public class ReadFileAsStringOperation : AbstractFileOperation<ReadFileAsStringO
 
             if (!await blobClient.ExistsAsync(cancellationToken))
             {
-                throw new BlobClientNotFoundException(request!.FileName, request!.BaseLocation);
+                throw new BlobClientNotFoundException(request!.BaseLocation, request!.FileName);
             }
 
             var data = await blobClient.ReadAsStringAsync();

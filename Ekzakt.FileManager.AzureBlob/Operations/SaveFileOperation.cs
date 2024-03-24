@@ -63,7 +63,7 @@ public class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFile
 
             if (await blobClient.ExistsAsync(cancellationToken))
             {
-                throw new BlobClientExistsException(request!.FileName, request!.BaseLocation);
+                throw new BlobClientExistsException(request!.BaseLocation, request!.FileName);
             }
 
             await blobClient.UploadAsync(request!.FileStream, GetBlobUploadOptions(request), cancellationToken);

@@ -5,7 +5,7 @@ public class BlobClientNotFoundException : Exception
     public string BlobClientName { get; }
     public string BlobContainerName { get; }
 
-    public BlobClientNotFoundException(string blobClientName, string blobContainerName)
+    public BlobClientNotFoundException(string blobContainerName, string blobClientName)
         : base($"Blob with clientname '{blobClientName}' does not exists in container '{blobContainerName}'.")
     {
         BlobClientName = blobClientName ?? throw new ArgumentNullException(nameof(blobClientName));
