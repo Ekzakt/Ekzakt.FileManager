@@ -35,7 +35,7 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
-        services.AddScoped<IFileManager, AzureBlobFileManager>();
+        services.AddScoped<IEkzaktFileManager, AzureBlobFileManager>();
 
         services.AddScoped<IFileOperation<SaveFileRequest, string?>, SaveFileOperation>();
         services.AddScoped<IFileOperation<SaveFileChunkedRequest, string?>, SaveFileChunkedOperation>();

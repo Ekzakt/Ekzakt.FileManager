@@ -6,7 +6,7 @@ using System.Formats.Tar;
 
 namespace Ekzakt.FileManager.AzureBlob.Services;
 
-public class AzureBlobFileManager : IFileManager
+public class AzureBlobFileManager : IEkzaktFileManager
 {
     private readonly IFileOperation<ListFilesRequest, IEnumerable<FileProperties>?> _listFilesOperation;
     private readonly IFileOperation<SaveFileRequest, string?> _saveFileOperation;
