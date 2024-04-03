@@ -12,6 +12,8 @@ namespace Ekzakt.FileManager.AzureBlob.Configuration;
 
 public static class DependencyInjection
 {
+
+    [Obsolete("Use AddEkzaktFileManagerAzure instead. This method will be removed in a future version.")]
     public static IServiceCollection AddAzureBlobFileManager(this IServiceCollection services, Action<FileManagerOptions> options)
     {
         services.Configure(options);
@@ -21,7 +23,17 @@ public static class DependencyInjection
         return services;
     }
 
+    public static IServiceCollection AddEkzaktFileManagerAzure(this IServiceCollection services, Action<FileManagerOptions> options)
+    {
+        services.Configure(options);
 
+        services.AddEkzaktFileManagerAzure();
+
+        return services;
+    }
+
+
+    [Obsolete("Use AddEkzaktFileManagerAzure instead. This method will be removed in a furure version.")]
     public static IServiceCollection AddAzureBlobFileManager(this IServiceCollection services, string? configSectionPath = null)
     {
         configSectionPath ??= FileManagerOptions.SectionName;
@@ -36,6 +48,32 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
         services.AddScoped<IEkzaktFileManager, AzureBlobFileManager>();
+
+        services.AddScoped<IFileOperation<SaveFileRequest, string?>, SaveFileOperation>();
+        services.AddScoped<IFileOperation<SaveFileChunkedRequest, string?>, SaveFileChunkedOperation>();
+        services.AddScoped<IFileOperation<ListFilesRequest, IEnumerable<FileProperties>?>, ListFilesOperation>();
+        services.AddScoped<IFileOperation<DeleteFileRequest, string?>, DeleteFileOperation>();
+        services.AddScoped<IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?>, DownloadSasTokenFileOperation>();
+        services.AddScoped<IFileOperation<ReadFileAsStringRequest, string?>, ReadFileAsStringOperation>();
+
+        return services;
+    }
+
+
+    public static IServiceCollection AddEkzaktFileManagerAzure(this IServiceCollection services, string? configSectionPath = null)
+    {
+        configSectionPath ??= FileManagerOptions.SectionName;
+
+        services
+            .AddOptions<FileManagerOptions>()
+            .ValidateOnStart()
+            .BindConfiguration(configSectionPath);
+
+        // TODO: GitHub issue #9.
+
+        services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+
+        services.AddScoped<IEkzaktFileManager, EkzaktFileManagerAzure>();
 
         services.AddScoped<IFileOperation<SaveFileRequest, string?>, SaveFileOperation>();
         services.AddScoped<IFileOperation<SaveFileChunkedRequest, string?>, SaveFileChunkedOperation>();
