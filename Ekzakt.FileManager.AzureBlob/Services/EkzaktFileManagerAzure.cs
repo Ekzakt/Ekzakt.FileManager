@@ -1,12 +1,11 @@
 ﻿using Ekzakt.FileManager.Core.Contracts;
-using Ekzakt.FileManager.Core.Models;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
+using Ekzakt.FileManager.Core.Models;
 
 namespace Ekzakt.FileManager.AzureBlob.Services;
 
-[Obsolete("Use EkzaktFileManagerAzure instread. This class will be removed in a future version.")]
-public class AzureBlobFileManager : IEkzaktFileManager
+public class EkzaktFileManagerAzure : IEkzaktFileManager
 {
     private readonly IFileOperation<ListFilesRequest, IEnumerable<FileProperties>?> _listFilesOperation;
     private readonly IFileOperation<SaveFileRequest, string?> _saveFileOperation;
@@ -15,7 +14,7 @@ public class AzureBlobFileManager : IEkzaktFileManager
     private readonly IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?> _downloadFileOperation;
     private readonly IFileOperation<ReadFileAsStringRequest, string?> _readFileAsStringOperation;
 
-    public AzureBlobFileManager(
+    public EkzaktFileManagerAzure(
         IFileOperation<ListFilesRequest, IEnumerable<FileProperties>?> listFilesOperation,
         IFileOperation<SaveFileRequest, string?> saveFileOperation,
         IFileOperation<SaveFileChunkedRequest, string?> saveFileChunkedOperation,
@@ -43,7 +42,7 @@ public class AzureBlobFileManager : IEkzaktFileManager
     }
 
 
-    public async Task<FileResponse<string?>>SaveFileAsync<TRequest>(TRequest saveFileRequest, CancellationToken cancellationToken = default)
+    public async Task<FileResponse<string?>> SaveFileAsync<TRequest>(TRequest saveFileRequest, CancellationToken cancellationToken = default)
         where TRequest : AbstractFileRequest
     {
         var request = saveFileRequest is not null

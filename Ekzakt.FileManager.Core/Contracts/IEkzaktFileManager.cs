@@ -1,14 +1,13 @@
-﻿using Ekzakt.FileManager.Core.Models;
-using Ekzakt.FileManager.Core.Models.Requests;
+﻿using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
+using Ekzakt.FileManager.Core.Models;
 
 namespace Ekzakt.FileManager.Core.Contracts;
 
-[Obsolete("Use IEkzaktFileManager interface instead. This interface will be deleted in a future version.")]
-public interface IFileManager
+public interface IEkzaktFileManager
 {
     Task<FileResponse<string?>> SaveFileAsync<TRequest>(TRequest saveFileRequest, CancellationToken cancellationToken = default)
-        where TRequest : AbstractFileRequest;
+       where TRequest : AbstractFileRequest;
 
     Task<FileResponse<string?>> DeleteFileAsync<TRequest>(TRequest deleteFileRequest, CancellationToken cancellationToken = default)
         where TRequest : AbstractFileRequest;

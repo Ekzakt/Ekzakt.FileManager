@@ -2,14 +2,6 @@
 
 public abstract class AbstractFileRequest
 {
-    [Obsolete("Use BlobContainerName instead.")]
-    public string ContainerName { get; set; } = string.Empty;
-
-
-    [Obsolete("Use BaseLocation instead.")]
-    public string BlobContainerName { get; set; } = string.Empty;
-
-
     /// <summary>
     /// This property represents or the Azure blob container name when
     /// using FileManager.AzureBlob or the base folder when using 
