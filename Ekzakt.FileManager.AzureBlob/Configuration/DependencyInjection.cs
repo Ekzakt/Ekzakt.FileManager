@@ -1,7 +1,7 @@
 ﻿using Ekzakt.FileManager.AzureBlob.Operations;
 using Ekzakt.FileManager.AzureBlob.Services;
 using Ekzakt.FileManager.Core.Contracts;
-using Ekzakt.FileManager.Core.Models.Models;
+using Ekzakt.FileManager.Core.Models;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
 using Ekzakt.FileManager.Core.Options;

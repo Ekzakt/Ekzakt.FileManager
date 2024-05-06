@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Ekzakt.FileManager.Core.Models;
+namespace Ekzakt.FileManager.Core.Models.EventArgs;
 
 public class ProgressEventArgs
 {
@@ -10,7 +10,7 @@ public class ProgressEventArgs
 
     public long FileSize { get; set; } = 0;
 
-    public double PercentageDone =>  (double) BytesSent / FileSize * 100;
+    public double PercentageDone => (double)BytesSent / FileSize * 100;
 
 
     public override string ToString()

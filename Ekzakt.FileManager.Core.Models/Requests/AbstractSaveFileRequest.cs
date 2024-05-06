@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Ekzakt.FileManager.Core.Models.EventArgs;
 
 namespace Ekzakt.FileManager.Core.Models.Requests;
 

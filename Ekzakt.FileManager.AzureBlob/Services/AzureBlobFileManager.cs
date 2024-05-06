@@ -1,5 +1,5 @@
 ﻿using Ekzakt.FileManager.Core.Contracts;
-using Ekzakt.FileManager.Core.Models.Models;
+using Ekzakt.FileManager.Core.Models;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
 
