@@ -7,10 +7,8 @@ public sealed class DeleteFileRequestValidator : AbstractValidator<DeleteFileReq
 {
     public DeleteFileRequestValidator()
     {
-        // TODO: Make this simpler!
-        RuleFor(request => request.BaseLocation)
-            .NotEmpty()
-            .WithMessage("Container name cannot be empty.");
+        RuleFor(x => x)
+            .SetValidator(new AbstractFileRequestValidator());
 
         RuleFor(request => request.FileName)
             .NotEmpty()

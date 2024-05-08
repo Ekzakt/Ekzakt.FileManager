@@ -24,13 +24,13 @@ public class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFile
 
     public SaveFileOperation(
         ILogger<SaveFileOperation> logger,
-        IOptions<FileManagerOptions> fileManagerOptions,
+        IOptions<FileManagerOptions> options,
         SaveFileRequestValidator validator,
-        BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
+        BlobServiceClient blobServiceClient) : base(logger, options, blobServiceClient)
     {
         _logger = logger;
         _validator = validator;
-        _options = fileManagerOptions.Value;
+        _options = options.Value;
     }
 
 

@@ -4,7 +4,7 @@ public class FileManagerOptions
 {
     public const string SectionName = "Ekzakt:FileManager";
 
-    public string[] ContainerNames { get; set; } = [];
+    public string BaseLocation { get; set; } = string.Empty;
 
     public UploadOptions Upload { get; set; } = new();
 }

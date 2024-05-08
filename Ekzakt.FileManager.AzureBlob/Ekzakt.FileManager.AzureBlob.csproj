@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Authors>Ekzakt</Authors>
 		<Company>Ekzakt</Company>
-		<Version>0.0.0</Version>
+		<Version>0.1.0</Version>
 		<Description>Package for managing files in an Azure storage account. This is an implemention from Ekzakt.FileManager.Core.</Description>
 		<PackageProjectUrl>https://github.com/Ekzakt/Ekzakt.EmailSender</PackageProjectUrl>
 		<PackageTags>email, ekzakt</PackageTags>
