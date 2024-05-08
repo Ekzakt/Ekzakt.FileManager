@@ -9,9 +9,7 @@ public sealed class ListFilesRequestValidator : AbstractValidator<ListFilesReque
 {
     public ListFilesRequestValidator()
     {
-        RuleFor(x => x.BaseLocation)
-            .NotNull()
-            .NotEmpty()
-            .Matches(Regexes.Azure.StorageAccount.BLOB_CONTAINER_NAME);
+        RuleFor(x => x)
+            .SetValidator(new AbstractFileRequestValidator());
     }
 }

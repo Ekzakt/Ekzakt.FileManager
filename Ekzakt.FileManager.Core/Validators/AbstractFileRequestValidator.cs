@@ -1,4 +1,5 @@
-﻿using Ekzakt.FileManager.Core.Models.Requests;
+﻿using Regexes = Ekzakt.Utilities.Validation.Regex;
+using Ekzakt.FileManager.Core.Models.Requests;
 using FluentValidation;
 
 namespace Ekzakt.FileManager.Core.Validators;
@@ -9,6 +10,7 @@ internal sealed class AbstractFileRequestValidator : AbstractValidator<AbstractF
     {
         RuleFor(x => x.BaseLocation)
             .NotNull()
-            .NotEmpty();
+            .NotEmpty()
+            .Matches(Regexes.Azure.StorageAccount.BLOB_CONTAINER_NAME);
     }
 }

@@ -3,8 +3,10 @@ using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Extensions;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
+using Ekzakt.FileManager.Core.Options;
 using Ekzakt.FileManager.Core.Validators;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
@@ -17,8 +19,9 @@ public class DeleteFileOperation : AbstractFileOperation<DeleteFileOperation>, I
 
     public DeleteFileOperation(
         ILogger<DeleteFileOperation> logger,
+        IOptions<FileManagerOptions> options,
         DeleteFileRequestValidator validator,
-        BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
+        BlobServiceClient blobServiceClient) : base(logger, options, blobServiceClient)
     {
         _logger = logger;
         _validator = validator;

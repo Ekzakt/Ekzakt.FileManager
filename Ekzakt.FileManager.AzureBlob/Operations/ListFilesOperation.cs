@@ -4,8 +4,10 @@ using Ekzakt.FileManager.Core.Extensions;
 using Ekzakt.FileManager.Core.Models;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
+using Ekzakt.FileManager.Core.Options;
 using Ekzakt.FileManager.Core.Validators;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
@@ -17,9 +19,10 @@ public class ListFilesOperation : AbstractFileOperation<ListFilesOperation>, IFi
 
 
     public ListFilesOperation(
-        ILogger<ListFilesOperation> logger, 
+        ILogger<ListFilesOperation> logger,
+        IOptions<FileManagerOptions> options,
         BlobServiceClient blobServiceClient,
-        ListFilesRequestValidator listFilesValidator) : base(logger, blobServiceClient)
+        ListFilesRequestValidator listFilesValidator) : base(logger, options, blobServiceClient)
     {
         _logger = logger;
         _listFilesValidator = listFilesValidator;
