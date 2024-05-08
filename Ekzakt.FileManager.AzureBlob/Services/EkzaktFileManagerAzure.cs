@@ -7,7 +7,7 @@ namespace Ekzakt.FileManager.AzureBlob.Services;
 
 public class EkzaktFileManagerAzure : IEkzaktFileManager
 {
-    private readonly IFileOperation<ListFilesRequest, IEnumerable<FileProperties>?> _listFilesOperation;
+    private readonly IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?> _listFilesOperation;
     private readonly IFileOperation<SaveFileRequest, string?> _saveFileOperation;
     private readonly IFileOperation<SaveFileChunkedRequest, string?> _saveFileChunkedOperation;
     private readonly IFileOperation<DeleteFileRequest, string?> _deleteFileOperation;
@@ -15,7 +15,7 @@ public class EkzaktFileManagerAzure : IEkzaktFileManager
     private readonly IFileOperation<ReadFileAsStringRequest, string?> _readFileAsStringOperation;
 
     public EkzaktFileManagerAzure(
-        IFileOperation<ListFilesRequest, IEnumerable<FileProperties>?> listFilesOperation,
+        IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?> listFilesOperation,
         IFileOperation<SaveFileRequest, string?> saveFileOperation,
         IFileOperation<SaveFileChunkedRequest, string?> saveFileChunkedOperation,
         IFileOperation<DeleteFileRequest, string?> deleteFileOperation,
@@ -31,7 +31,7 @@ public class EkzaktFileManagerAzure : IEkzaktFileManager
     }
 
 
-    public async Task<FileResponse<IEnumerable<FileProperties>?>> ListFilesAsync<TRequest>(TRequest listFilesRequest, CancellationToken cancellationToken = default)
+    public async Task<FileResponse<IEnumerable<FileInformation>?>> ListFilesAsync<TRequest>(TRequest listFilesRequest, CancellationToken cancellationToken = default)
         where TRequest : AbstractFileRequest
     {
         var request = listFilesRequest is not null
