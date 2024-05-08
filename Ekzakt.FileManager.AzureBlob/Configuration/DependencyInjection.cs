@@ -7,6 +7,7 @@ using Ekzakt.FileManager.Core.Models.Responses;
 using Ekzakt.FileManager.Core.Options;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Ekzakt.FileManager.AzureBlob.Configuration;
 
@@ -27,7 +28,6 @@ public static class DependencyInjection
 
         services
             .AddOptions<FileManagerOptions>()
-            .ValidateOnStart()
             .BindConfiguration(configSectionPath);
 
         // TODO: GitHub issue #9.
