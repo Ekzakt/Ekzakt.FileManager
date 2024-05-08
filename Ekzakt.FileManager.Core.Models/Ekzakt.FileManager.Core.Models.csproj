@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Authors>Ekzakt</Authors>
 		<Company>Ekzakt</Company>
-		<Version>0.0.0</Version>
+		<Version>0.1.0</Version>
 		<Description>This package contains the models used in the package Ekzakt.FileManager.Core.</Description>
 		<PackageProjectUrl>https://github.com/Ekzakt/Ekzakt.EmailSender</PackageProjectUrl>
 		<PackageTags>filemanager, storage, models ekzakt</PackageTags>
