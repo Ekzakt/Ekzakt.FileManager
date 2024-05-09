@@ -12,9 +12,10 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-internal class ListFilesOperation : AbstractFileOperation<ListFilesOperation>, IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?>
+internal class ListFilesOperation : AbstractAzureFileOperation<ListFilesOperation>, IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?>
 {
     private readonly ILogger<ListFilesOperation> _logger;
+    private EkzaktFileManagerAzureOptions _options;
     private readonly ListFilesRequestValidator _listFilesValidator;
 
 
@@ -22,16 +23,17 @@ internal class ListFilesOperation : AbstractFileOperation<ListFilesOperation>, I
         ILogger<ListFilesOperation> logger,
         IOptions<EkzaktFileManagerAzureOptions> options,
         BlobServiceClient blobServiceClient,
-        ListFilesRequestValidator listFilesValidator) : base(logger, options, blobServiceClient)
+        ListFilesRequestValidator listFilesValidator) : base(logger, blobServiceClient)
     {
         _logger = logger;
+        _options = options.Value;
         _listFilesValidator = listFilesValidator;
     }
 
 
     public async Task<FileResponse<IEnumerable<FileInformation>?>> ExecuteAsync(ListFilesRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ValidateRequest(request!, _listFilesValidator, out FileResponse<IEnumerable<FileInformation>?> validationResponse))
+        if (!ValidateRequest(request!, _listFilesValidator, out FileResponse<IEnumerable<FileInformation>?> validationResponse, _options))
         {
             return validationResponse;
         }

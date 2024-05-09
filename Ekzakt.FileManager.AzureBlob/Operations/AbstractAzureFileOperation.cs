@@ -7,31 +7,28 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using Microsoft.Extensions.Options;
 using Ekzakt.FileManager.AzureBlob.Configuration;
+using Ekzakt.FileManager.Core.Contracts;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-internal abstract class AbstractFileOperation<TLogger>
+public abstract class AbstractAzureFileOperation<TLogger> : AbstractFileOperation<TLogger>
     where TLogger : class
 {
     private readonly ILogger<TLogger> _logger;
     private readonly BlobServiceClient _blobServiceClient;
-    private readonly EkzaktFileManagerAzureOptions _options;
 
     private BlobContainerClient? _blobContainerClient;
-
 
     public BlobServiceClient BlobServiceClient => _blobServiceClient;
 
     public BlobContainerClient? BlobContainerClient => _blobContainerClient;
 
 
-    public AbstractFileOperation(
+    public AbstractAzureFileOperation(
         ILogger<TLogger> logger,
-        IOptions<EkzaktFileManagerAzureOptions> options,
-        BlobServiceClient blobServiceClient)
+        BlobServiceClient blobServiceClient) : base(logger)
     {
         _logger = logger;
-        _options = options.Value;
         _blobServiceClient = blobServiceClient;
     }
 
@@ -65,41 +62,5 @@ internal abstract class AbstractFileOperation<TLogger>
 
             return false;
         }
-    }
-
-
-    public bool ValidateRequest<TRequest, TValidator, TResponse>(TRequest request, TValidator validator, out FileResponse<TResponse?> response)
-        where TRequest : AbstractFileRequest
-        where TValidator : AbstractValidator<TRequest>
-        where TResponse : class
-    {
-        if (string.IsNullOrEmpty(request.BaseLocation))
-        {
-            request.BaseLocation = _options.BaseLocation;
-        }
-
-        var validationResult = validator.Validate(request);
-
-        if (!validationResult.IsValid)
-        {
-            var errorMessage = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-
-            _logger.LogWarning("{requestName} validation failed. Error: {errorMessage}",
-                typeof(TRequest).Name,
-                errorMessage
-            );
-
-            response = new FileResponse<TResponse?>
-            {
-                Status = HttpStatusCode.BadRequest,
-                Message = errorMessage,
-            };
-
-            return false;
-        }
-
-        response = new();
-
-        return true;
     }
 }

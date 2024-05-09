@@ -11,25 +11,26 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-internal class DeleteFileOperation : AbstractFileOperation<DeleteFileOperation>, IFileOperation<DeleteFileRequest, string?>
+internal class DeleteFileOperation : AbstractAzureFileOperation<DeleteFileOperation>, IFileOperation<DeleteFileRequest, string?>
 {
     private readonly ILogger<DeleteFileOperation> _logger;
+    private EkzaktFileManagerAzureOptions _options;
     private DeleteFileRequestValidator _validator;
-
 
     public DeleteFileOperation(
         ILogger<DeleteFileOperation> logger,
         IOptions<EkzaktFileManagerAzureOptions> options,
         DeleteFileRequestValidator validator,
-        BlobServiceClient blobServiceClient) : base(logger, options, blobServiceClient)
+        BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
     {
         _logger = logger;
+        _options = options.Value;
         _validator = validator;
     }
 
     public async Task<FileResponse<string?>> ExecuteAsync(DeleteFileRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse))
+        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse, _options))
         {
             return validationResponse;
         }

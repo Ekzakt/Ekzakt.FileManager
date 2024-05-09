@@ -1,8 +1,10 @@
-﻿namespace Ekzakt.FileManager.AzureBlob.Configuration;
+﻿using Ekzakt.FileManager.Core.Contracts;
+
+namespace Ekzakt.FileManager.AzureBlob.Configuration;
 
 #nullable disable
 
-public class EkzaktFileManagerAzureOptions
+public class EkzaktFileManagerAzureOptions : IEkzaktFileManagerOptions
 {
     public const string SectionName = "Ekzakt:FileManager:Azure";
 

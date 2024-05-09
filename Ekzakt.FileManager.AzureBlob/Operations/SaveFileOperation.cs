@@ -15,7 +15,7 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-internal class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFileOperation<SaveFileRequest, string?>
+internal class SaveFileOperation : AbstractAzureFileOperation<SaveFileOperation>, IFileOperation<SaveFileRequest, string?>
 {
     private readonly ILogger<SaveFileOperation> _logger;
     private readonly SaveFileRequestValidator _validator;
@@ -26,7 +26,7 @@ internal class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFi
         ILogger<SaveFileOperation> logger,
         IOptions<EkzaktFileManagerAzureOptions> options,
         SaveFileRequestValidator validator,
-        BlobServiceClient blobServiceClient) : base(logger, options, blobServiceClient)
+        BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
     {
         _logger = logger;
         _validator = validator;
@@ -36,7 +36,7 @@ internal class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFi
 
     public async Task<FileResponse<string?>> ExecuteAsync(SaveFileRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse))
+        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse, _options))
         {
             return validationResponse!;
         }

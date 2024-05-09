@@ -47,4 +47,8 @@
 		<None Include="README.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\Ekzakt.FileManager.Core\Ekzakt.FileManager.Core.csproj" />
+	</ItemGroup>
+
 </Project>

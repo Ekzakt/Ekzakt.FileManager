@@ -13,9 +13,10 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-internal class SaveFileChunkedOperation : AbstractFileOperation<SaveFileChunkedOperation>, IFileOperation<SaveFileChunkedRequest, string?>
+internal class SaveFileChunkedOperation : AbstractAzureFileOperation<SaveFileChunkedOperation>, IFileOperation<SaveFileChunkedRequest, string?>
 {
     private readonly ILogger<SaveFileChunkedOperation> _logger;
+    private EkzaktFileManagerAzureOptions _options;
     private readonly SaveChunkedFileRequestValidator _validator;
 
     static List<string> blockBlobIds = new();
@@ -24,16 +25,17 @@ internal class SaveFileChunkedOperation : AbstractFileOperation<SaveFileChunkedO
         ILogger<SaveFileChunkedOperation> logger,
         IOptions<EkzaktFileManagerAzureOptions> options,
         SaveChunkedFileRequestValidator validator,
-        BlobServiceClient blobServiceClient) : base(logger, options, blobServiceClient)
+        BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
     {
         _logger = logger;
+        _options = options.Value;
         _validator = validator;
     }
 
 
     public async Task<FileResponse<string?>> ExecuteAsync(SaveFileChunkedRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse))
+        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse, _options))
         {
             return validationResponse!;
         }

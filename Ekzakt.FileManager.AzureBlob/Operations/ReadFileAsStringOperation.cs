@@ -13,25 +13,27 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-internal class ReadFileAsStringOperation : AbstractFileOperation<ReadFileAsStringOperation>, IFileOperation<ReadFileAsStringRequest, string?>
+internal class ReadFileAsStringOperation : AbstractAzureFileOperation<ReadFileAsStringOperation>, IFileOperation<ReadFileAsStringRequest, string?>
 {
     private readonly ILogger<ReadFileAsStringOperation> _logger;
+    private EkzaktFileManagerAzureOptions _options;
     private readonly ReadFileAsStringRequestValidator _validator;
 
     public ReadFileAsStringOperation(
         ILogger<ReadFileAsStringOperation> logger,
         IOptions<EkzaktFileManagerAzureOptions> options,
         ReadFileAsStringRequestValidator validator,
-        BlobServiceClient blobServiceClient) : base(logger, options, blobServiceClient)
+        BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
     {
         _logger = logger;
+        _options = options.Value;
         _validator = validator;
     }
 
 
     public async Task<FileResponse<string?>> ExecuteAsync(ReadFileAsStringRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse))
+        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse, _options))
         {
             return validationResponse!;
         }

@@ -12,24 +12,26 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-internal class DownloadSasTokenFileOperation : AbstractFileOperation<DownloadSasTokenFileOperation>, IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?>
+internal class DownloadSasTokenFileOperation : AbstractAzureFileOperation<DownloadSasTokenFileOperation>, IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?>
 {
     private readonly ILogger<DownloadSasTokenFileOperation> _logger;
+    private EkzaktFileManagerAzureOptions _options;
     private readonly DownloadSasTokenRequestValidator _validator;
 
     public DownloadSasTokenFileOperation(
         ILogger<DownloadSasTokenFileOperation> logger,
         IOptions<EkzaktFileManagerAzureOptions> options,
         DownloadSasTokenRequestValidator validator,
-        BlobServiceClient blobServiceClient) : base(logger, options, blobServiceClient)
+        BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
     {
         _logger = logger;
+        _options = options.Value;
         _validator = validator;
     }
 
     public async Task<FileResponse<DownloadSasTokenResponse?>> ExecuteAsync(DownloadSasTokenRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ValidateRequest(request!, _validator, out FileResponse<DownloadSasTokenResponse?> validationResponse))
+        if (!ValidateRequest(request!, _validator, out FileResponse<DownloadSasTokenResponse?> validationResponse, _options))
         {
             return validationResponse!;
         }
