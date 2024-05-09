@@ -1,11 +1,11 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Specialized;
+using Ekzakt.FileManager.AzureBlob.Configuration;
 using Ekzakt.FileManager.AzureBlob.Exceptions;
 using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Extensions;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
-using Ekzakt.FileManager.Core.Options;
 using Ekzakt.FileManager.Core.Validators;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,7 +22,7 @@ internal class SaveFileChunkedOperation : AbstractFileOperation<SaveFileChunkedO
 
     public SaveFileChunkedOperation(
         ILogger<SaveFileChunkedOperation> logger,
-        IOptions<FileManagerOptions> options,
+        IOptions<EkzaktFileManagerAzureOptions> options,
         SaveChunkedFileRequestValidator validator,
         BlobServiceClient blobServiceClient) : base(logger, options, blobServiceClient)
     {

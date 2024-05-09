@@ -4,7 +4,6 @@ using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Models;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
-using Ekzakt.FileManager.Core.Options;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -13,7 +12,7 @@ namespace Ekzakt.FileManager.AzureBlob.Configuration;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddEkzaktFileManagerAzure(this IServiceCollection services, Action<FileManagerOptions> options)
+    public static IServiceCollection AddEkzaktFileManagerAzure(this IServiceCollection services, Action<EkzaktFileManagerAzureOptions> options)
     {
         services.Configure(options);
 
@@ -24,10 +23,10 @@ public static class DependencyInjection
 
     public static IServiceCollection AddEkzaktFileManagerAzure(this IServiceCollection services, string? configSectionPath = null)
     {
-        configSectionPath ??= FileManagerOptions.SectionName;
+        configSectionPath ??= EkzaktFileManagerAzureOptions.SectionName;
 
         services
-            .AddOptions<FileManagerOptions>()
+            .AddOptions<EkzaktFileManagerAzureOptions>()
             .BindConfiguration(configSectionPath);
 
         // TODO: GitHub issue #9.
@@ -35,7 +34,6 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
         services.AddScoped<IEkzaktFileManager, EkzaktFileManagerAzure>();
-
         services.AddScoped<IFileOperation<SaveFileRequest, string?>, SaveFileOperation>();
         services.AddScoped<IFileOperation<SaveFileChunkedRequest, string?>, SaveFileChunkedOperation>();
         services.AddScoped<IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?>, ListFilesOperation>();

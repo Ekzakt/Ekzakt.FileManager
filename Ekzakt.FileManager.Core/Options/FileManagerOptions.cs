@@ -2,6 +2,7 @@
 
 #nullable disable
 
+[Obsolete("This class has been renamed to EkzaktFileManagerAzureOptions and moved to namespace Ekzakt.FileManager.AzureBlob.Configuration")]
 public class FileManagerOptions
 {
     public const string SectionName = "Ekzakt:FileManager";

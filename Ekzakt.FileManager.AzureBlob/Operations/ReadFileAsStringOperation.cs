@@ -1,11 +1,11 @@
 ﻿using Azure.Storage.Blobs;
+using Ekzakt.FileManager.AzureBlob.Configuration;
 using Ekzakt.FileManager.AzureBlob.Exceptions;
 using Ekzakt.FileManager.AzureBlob.Extensions;
 using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Extensions;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
-using Ekzakt.FileManager.Core.Options;
 using Ekzakt.FileManager.Core.Validators;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,7 +20,7 @@ internal class ReadFileAsStringOperation : AbstractFileOperation<ReadFileAsStrin
 
     public ReadFileAsStringOperation(
         ILogger<ReadFileAsStringOperation> logger,
-        IOptions<FileManagerOptions> options,
+        IOptions<EkzaktFileManagerAzureOptions> options,
         ReadFileAsStringRequestValidator validator,
         BlobServiceClient blobServiceClient) : base(logger, options, blobServiceClient)
     {

@@ -1,7 +1,5 @@
-﻿namespace Ekzakt.FileManager.Core.Options;
+﻿namespace Ekzakt.FileManager.AzureBlob.Configuration;
 
-
-[Obsolete("This class has moved to namespace Ekzakt.FileManager.AzureBlob.Configuration")]
 public class UploadOptions
 {
     public long InitialTransferSize { get; init; } = 4 * 1024 * 1024;

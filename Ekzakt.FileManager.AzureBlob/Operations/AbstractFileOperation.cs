@@ -5,8 +5,8 @@ using Ekzakt.FileManager.Core.Models.Responses;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using System.Net;
-using Ekzakt.FileManager.Core.Options;
 using Microsoft.Extensions.Options;
+using Ekzakt.FileManager.AzureBlob.Configuration;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
@@ -15,7 +15,7 @@ internal abstract class AbstractFileOperation<TLogger>
 {
     private readonly ILogger<TLogger> _logger;
     private readonly BlobServiceClient _blobServiceClient;
-    private readonly FileManagerOptions _options;
+    private readonly EkzaktFileManagerAzureOptions _options;
 
     private BlobContainerClient? _blobContainerClient;
 
@@ -27,7 +27,7 @@ internal abstract class AbstractFileOperation<TLogger>
 
     public AbstractFileOperation(
         ILogger<TLogger> logger,
-        IOptions<FileManagerOptions> options,
+        IOptions<EkzaktFileManagerAzureOptions> options,
         BlobServiceClient blobServiceClient)
     {
         _logger = logger;
