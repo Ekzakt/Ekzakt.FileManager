@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-public abstract class AbstractFileOperation<TLogger>
+internal abstract class AbstractFileOperation<TLogger>
     where TLogger : class
 {
     private readonly ILogger<TLogger> _logger;

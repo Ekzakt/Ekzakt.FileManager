@@ -11,7 +11,7 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-public class DeleteFileOperation : AbstractFileOperation<DeleteFileOperation>, IFileOperation<DeleteFileRequest, string?>
+internal class DeleteFileOperation : AbstractFileOperation<DeleteFileOperation>, IFileOperation<DeleteFileRequest, string?>
 {
     private readonly ILogger<DeleteFileOperation> _logger;
     private DeleteFileRequestValidator _validator;

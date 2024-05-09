@@ -15,7 +15,7 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-public class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFileOperation<SaveFileRequest, string?>
+internal class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFileOperation<SaveFileRequest, string?>
 {
     private readonly ILogger<SaveFileOperation> _logger;
     private readonly SaveFileRequestValidator _validator;

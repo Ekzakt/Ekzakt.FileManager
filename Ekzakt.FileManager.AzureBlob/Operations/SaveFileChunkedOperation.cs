@@ -13,7 +13,7 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-public class SaveFileChunkedOperation : AbstractFileOperation<SaveFileChunkedOperation>, IFileOperation<SaveFileChunkedRequest, string?>
+internal class SaveFileChunkedOperation : AbstractFileOperation<SaveFileChunkedOperation>, IFileOperation<SaveFileChunkedRequest, string?>
 {
     private readonly ILogger<SaveFileChunkedOperation> _logger;
     private readonly SaveChunkedFileRequestValidator _validator;

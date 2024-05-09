@@ -12,7 +12,7 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-public class DownloadSasTokenFileOperation : AbstractFileOperation<DownloadSasTokenFileOperation>, IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?>
+internal class DownloadSasTokenFileOperation : AbstractFileOperation<DownloadSasTokenFileOperation>, IFileOperation<DownloadSasTokenRequest, DownloadSasTokenResponse?>
 {
     private readonly ILogger<DownloadSasTokenFileOperation> _logger;
     private readonly DownloadSasTokenRequestValidator _validator;
