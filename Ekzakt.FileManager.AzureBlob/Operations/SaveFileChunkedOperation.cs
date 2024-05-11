@@ -1,11 +1,11 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Specialized;
+using Ekzakt.FileManager.AzureBlob.Configuration;
 using Ekzakt.FileManager.AzureBlob.Exceptions;
 using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Extensions;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
-using Ekzakt.FileManager.Core.Options;
 using Ekzakt.FileManager.Core.Validators;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,27 +13,29 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-public class SaveFileChunkedOperation : AbstractFileOperation<SaveFileChunkedOperation>, IFileOperation<SaveFileChunkedRequest, string?>
+internal class SaveFileChunkedOperation : AbstractAzureFileOperation<SaveFileChunkedOperation>, IFileOperation<SaveFileChunkedRequest, string?>
 {
     private readonly ILogger<SaveFileChunkedOperation> _logger;
+    private EkzaktFileManagerAzureOptions _options;
     private readonly SaveChunkedFileRequestValidator _validator;
 
     static List<string> blockBlobIds = new();
 
     public SaveFileChunkedOperation(
         ILogger<SaveFileChunkedOperation> logger,
-        IOptions<FileManagerOptions> options,
+        IOptions<EkzaktFileManagerAzureOptions> options,
         SaveChunkedFileRequestValidator validator,
-        BlobServiceClient blobServiceClient) : base(logger, options, blobServiceClient)
+        BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
     {
         _logger = logger;
+        _options = options.Value;
         _validator = validator;
     }
 
 
     public async Task<FileResponse<string?>> ExecuteAsync(SaveFileChunkedRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse))
+        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse, _options))
         {
             return validationResponse!;
         }

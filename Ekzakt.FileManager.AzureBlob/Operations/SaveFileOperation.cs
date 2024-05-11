@@ -1,13 +1,13 @@
 ﻿using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Ekzakt.FileManager.AzureBlob.Configuration;
 using Ekzakt.FileManager.AzureBlob.Exceptions;
 using Ekzakt.FileManager.AzureBlob.Services;
 using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Extensions;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
-using Ekzakt.FileManager.Core.Options;
 using Ekzakt.FileManager.Core.Validators;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -15,28 +15,28 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-public class SaveFileOperation : AbstractFileOperation<SaveFileOperation>, IFileOperation<SaveFileRequest, string?>
+internal class SaveFileOperation : AbstractAzureFileOperation<SaveFileOperation>, IFileOperation<SaveFileRequest, string?>
 {
     private readonly ILogger<SaveFileOperation> _logger;
     private readonly SaveFileRequestValidator _validator;
-    private readonly FileManagerOptions _options;
+    private readonly EkzaktFileManagerAzureOptions _options;
 
 
     public SaveFileOperation(
         ILogger<SaveFileOperation> logger,
-        IOptions<FileManagerOptions> options,
+        IOptions<EkzaktFileManagerAzureOptions> options,
         SaveFileRequestValidator validator,
-        BlobServiceClient blobServiceClient) : base(logger, options, blobServiceClient)
+        BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
     {
         _logger = logger;
-        _validator = validator;
         _options = options.Value;
+        _validator = validator;
     }
 
 
     public async Task<FileResponse<string?>> ExecuteAsync(SaveFileRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse))
+        if (!ValidateRequest(request!, _validator, out FileResponse<string?> validationResponse, _options))
         {
             return validationResponse!;
         }

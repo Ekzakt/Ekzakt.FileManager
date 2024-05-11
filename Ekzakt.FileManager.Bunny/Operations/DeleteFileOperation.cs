@@ -1,5 +1,5 @@
-﻿using Azure.Storage.Blobs;
-using Ekzakt.FileManager.AzureBlob.Configuration;
+﻿using Ekzakt.FileManager.Bunny.Configuration;
+using Ekzakt.FileManager.Bunny.HttpClients;
 using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Extensions;
 using Ekzakt.FileManager.Core.Models.Requests;
@@ -9,23 +9,25 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
 
-namespace Ekzakt.FileManager.AzureBlob.Operations;
+namespace Ekzakt.FileManager.Bunny.Operations;
 
-internal class DeleteFileOperation : AbstractAzureFileOperation<DeleteFileOperation>, IFileOperation<DeleteFileRequest, string?>
+internal class DeleteFileOperation : AbstractBunnyFileOperation<DeleteFileOperation>, IFileOperation<DeleteFileRequest, string?>
 {
     private readonly ILogger<DeleteFileOperation> _logger;
-    private EkzaktFileManagerAzureOptions _options;
+    private EkzaktFileManagerBunnyOptions _options;
+    private readonly BunnyHttpClient _httpClient;
     private DeleteFileRequestValidator _validator;
 
     public DeleteFileOperation(
-        ILogger<DeleteFileOperation> logger,
-        IOptions<EkzaktFileManagerAzureOptions> options,
-        DeleteFileRequestValidator validator,
-        BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
+        ILogger<DeleteFileOperation> logger, 
+        IOptions<EkzaktFileManagerBunnyOptions> options,
+        BunnyHttpClient httpClient,
+        DeleteFileRequestValidator validator) : base(logger, options)
     {
-        _logger = logger;
-        _options = options.Value;
-        _validator = validator;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options.Value ?? throw new ArgumentNullException(nameof(options));
+        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));    
+        _validator = validator ?? throw new ArgumentNullException(nameof(validator));
     }
 
     public async Task<FileResponse<string?>> ExecuteAsync(DeleteFileRequest request, CancellationToken cancellationToken = default)
@@ -35,24 +37,18 @@ internal class DeleteFileOperation : AbstractAzureFileOperation<DeleteFileOperat
             return validationResponse;
         }
 
-        if (!EnsureBlobContainerClient<string?>(request!.BaseLocation, out FileResponse<string?> blobContainerResponse))
-        {
-            return blobContainerResponse;
-        }
-
-
         try
         {
             _logger.LogRequestStarted(request);
 
             request.Paths.Add(request!.FileName);
 
-            var deleteResult = await BlobContainerClient!.DeleteBlobIfExistsAsync(request!.GetPathsString(), cancellationToken: cancellationToken);
+            var uri = GetBunnyUri([.. request.Paths]);
 
-            if (deleteResult == true)
+            var response = await _httpClient.Client.DeleteAsync(uri);
+
+            if (response.IsSuccessStatusCode)
             {
-                _logger.LogInformation("The file {FileName} was deleted successfully.", request!.FileName);
-
                 return new FileResponse<string?>
                 {
                     Status = HttpStatusCode.OK,
@@ -60,12 +56,10 @@ internal class DeleteFileOperation : AbstractAzureFileOperation<DeleteFileOperat
                 };
             }
 
-            _logger.LogInformation("The specified file does not exist.");
-
             return new FileResponse<string?>
             {
-                Status = HttpStatusCode.NotFound,
-                Message = "The specified file does not exist."
+                Status = response.StatusCode,
+                Message = "The specified file could not be deleted."
             };
         }
         catch (Exception ex)

@@ -1,10 +1,10 @@
 ﻿using Azure.Storage.Blobs;
+using Ekzakt.FileManager.AzureBlob.Configuration;
 using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Extensions;
 using Ekzakt.FileManager.Core.Models;
 using Ekzakt.FileManager.Core.Models.Requests;
 using Ekzakt.FileManager.Core.Models.Responses;
-using Ekzakt.FileManager.Core.Options;
 using Ekzakt.FileManager.Core.Validators;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,26 +12,28 @@ using System.Net;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
-public class ListFilesOperation : AbstractFileOperation<ListFilesOperation>, IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?>
+internal class ListFilesOperation : AbstractAzureFileOperation<ListFilesOperation>, IFileOperation<ListFilesRequest, IEnumerable<FileInformation>?>
 {
     private readonly ILogger<ListFilesOperation> _logger;
+    private EkzaktFileManagerAzureOptions _options;
     private readonly ListFilesRequestValidator _listFilesValidator;
 
 
     public ListFilesOperation(
         ILogger<ListFilesOperation> logger,
-        IOptions<FileManagerOptions> options,
+        IOptions<EkzaktFileManagerAzureOptions> options,
         BlobServiceClient blobServiceClient,
-        ListFilesRequestValidator listFilesValidator) : base(logger, options, blobServiceClient)
+        ListFilesRequestValidator listFilesValidator) : base(logger, blobServiceClient)
     {
         _logger = logger;
+        _options = options.Value;
         _listFilesValidator = listFilesValidator;
     }
 
 
     public async Task<FileResponse<IEnumerable<FileInformation>?>> ExecuteAsync(ListFilesRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ValidateRequest(request!, _listFilesValidator, out FileResponse<IEnumerable<FileInformation>?> validationResponse))
+        if (!ValidateRequest(request!, _listFilesValidator, out FileResponse<IEnumerable<FileInformation>?> validationResponse, _options))
         {
             return validationResponse;
         }

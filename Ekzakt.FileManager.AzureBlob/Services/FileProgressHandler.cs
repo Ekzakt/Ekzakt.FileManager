@@ -1,5 +1,4 @@
-﻿using Ekzakt.FileManager.Core.Models;
-using Ekzakt.FileManager.Core.Models.EventArgs;
+﻿using Ekzakt.FileManager.Core.Models.EventArgs;
 using Ekzakt.FileManager.Core.Models.Requests;
 
 namespace Ekzakt.FileManager.AzureBlob.Services;
