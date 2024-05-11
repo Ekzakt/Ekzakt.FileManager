@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Authors>Ekzakt</Authors>
 		<Company>Ekzakt</Company>
-		<Version>0.0.0</Version>
+		<Version>0.0.1</Version>
 		<Description>Package for managing files in a Bunny.net account. This is an implemention from Ekzakt.FileManager.Core.</Description>
 		<PackageProjectUrl>https://github.com/Ekzakt/Ekzakt.EmailSender</PackageProjectUrl>
 		<PackageTags>email, ekzakt</PackageTags>
@@ -19,6 +19,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.4" />
 	</ItemGroup>
 
 	<PropertyGroup>

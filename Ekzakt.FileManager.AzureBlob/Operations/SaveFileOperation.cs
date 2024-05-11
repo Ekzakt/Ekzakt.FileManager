@@ -29,8 +29,8 @@ internal class SaveFileOperation : AbstractAzureFileOperation<SaveFileOperation>
         BlobServiceClient blobServiceClient) : base(logger, blobServiceClient)
     {
         _logger = logger;
-        _validator = validator;
         _options = options.Value;
+        _validator = validator;
     }
 
 

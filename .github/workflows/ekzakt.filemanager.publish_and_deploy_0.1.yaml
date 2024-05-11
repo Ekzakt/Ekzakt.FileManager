@@ -39,9 +39,6 @@ jobs:
 
     - name: Update Build Number for Ekzakt.FileManager.AzureBlob
       run: sed -i "s/\(<Version>\([0-9]\+\.\)\{2\}\)\([0-9]\+\)/\1${{github.run_number}}/" ./Ekzakt.FileManager.AzureBlob/Ekzakt.FileManager.AzureBlob.csproj
-     
-    - name: Update Build Number for Ekzakt.FileManager.Core
-      run: sed -i "s/\(<Version>\([0-9]\+\.\)\{2\}\)\([0-9]\+\)/\1${{github.run_number}}/" ./Ekzakt.FileManager.Bunny/Ekzakt.FileManager.Bunny.csproj
 
     - name: Update Build Number for Ekzakt.FileManager.Core.Models
       run: sed -i "s/\(<Version>\([0-9]\+\.\)\{2\}\)\([0-9]\+\)/\1${{github.run_number}}/" ./Ekzakt.FileManager.Core.Models/Ekzakt.FileManager.Core.Models.csproj

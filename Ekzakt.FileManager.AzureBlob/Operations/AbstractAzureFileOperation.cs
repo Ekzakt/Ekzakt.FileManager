@@ -1,13 +1,9 @@
-﻿using Azure.Storage.Blobs;
-using Azure;
-using Ekzakt.FileManager.Core.Models.Requests;
+﻿using Azure;
+using Azure.Storage.Blobs;
+using Ekzakt.FileManager.Core.Contracts;
 using Ekzakt.FileManager.Core.Models.Responses;
-using FluentValidation;
 using Microsoft.Extensions.Logging;
 using System.Net;
-using Microsoft.Extensions.Options;
-using Ekzakt.FileManager.AzureBlob.Configuration;
-using Ekzakt.FileManager.Core.Contracts;
 
 namespace Ekzakt.FileManager.AzureBlob.Operations;
 
