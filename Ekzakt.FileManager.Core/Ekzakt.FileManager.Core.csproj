@@ -13,7 +13,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
 		<PackageReference Include="Ekzakt.Utilities" Version="0.2.25" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
 	</ItemGroup>
